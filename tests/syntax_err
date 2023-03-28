@@ -1,0 +1,57 @@
+
+
+
+
+
+syntax error near  unexpected token `newline'
+syntax error near  unexpected token `newline'
+syntax error near  unexpected token `newline'
+syntax error near  unexpected token `newline'
+syntax error near  unexpected token `newline'
+syntax error near unexpected token `>>'
+syntax error near unexpected token `>>'
+syntax error near unexpected token `<<'
+syntax error near unexpected token `<<'
+syntax error near unexpected token `>'
+syntax error near unexpected token `>>'
+syntax error near unexpected token `>>'
+/: Is a directory
+//: Is a directory
+/.: Is a directory
+/./../../../../..: Is a directory
+///////: Is a directory
+\: command not found
+\\: command not found
+\\\\: command not found
+-: command not found
+syntax error near unexpected token `|'
+syntax error near unexpected token `|'
+syntax error near unexpected token `|'
+syntax error near unexpected token `||'
+syntax error near unexpected token `||'
+syntax error near unexpected token `||'
+syntax error near unexpected token `|'
+syntax error near unexpected token `&&'
+syntax error near unexpected token `&&'
+syntax error near unexpected token `&&'
+syntax error near unexpected token `;;'
+syntax error near unexpected token `;;'
+syntax error near unexpected token `;;'
+syntax error near unexpected token `)'
+syntax error near unexpected token `)'
+syntax error near unexpected token `)'
+: command not found
+hola: command not found
+hola: command not found
+: command not found
+crashtest.c: command not found
+Docs/attest.cation: command not found
+*/*: No such file or directory
+.: filename argument required
+..: command not found
+/home/vietdu91: Is a directory
+: command not found
+4ABC=hola: command not found
+hola: command not found
+hola: command not found
+Makefile: command not found
