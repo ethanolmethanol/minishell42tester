@@ -1,228 +1,57 @@
 
-0
 
 
-        
-0
 
-
-                                    
-0
-
-
-:
-0
-
-
-!
-1
-
-
->
-2
 
 syntax error near  unexpected token `newline'
-<
-2
-
 syntax error near  unexpected token `newline'
->>
-2
-
 syntax error near  unexpected token `newline'
-<<
-2
-
 syntax error near  unexpected token `newline'
-<>
-2
-
 syntax error near  unexpected token `newline'
->>>>>
-2
-
 syntax error near unexpected token `>>'
->>>>>>>>>>>>>>>
-2
-
 syntax error near unexpected token `>>'
-<<<<<
-2
-
 syntax error near unexpected token `<<'
-<<<<<<<<<<<<<<<<
-2
-
 syntax error near unexpected token `<<'
-> > > >
-2
-
 syntax error near unexpected token `>'
->> >> >> >>
-2
-
 syntax error near unexpected token `>>'
->>>> >> >> >>
-2
-
 syntax error near unexpected token `>>'
-/
-126
-
 /: Is a directory
-//
-126
-
 //: Is a directory
-/.
-126
-
 /.: Is a directory
-/./../../../../..
-126
-
 /./../../../../..: Is a directory
-///////
-126
-
 ///////: Is a directory
-\\
-127
-
 \: command not found
-\\\\
-127
-
 \\: command not found
-\\\\\\\\
-127
-
 \\\\: command not found
--
-127
-
 -: command not found
-|
-2
-
 syntax error near unexpected token `|'
-| hola
-2
-
 syntax error near unexpected token `|'
-| | |
-2
-
 syntax error near unexpected token `|'
-||
-2
-
 syntax error near unexpected token `||'
-|||||
-2
-
 syntax error near unexpected token `||'
-|||||||||||||
-2
-
 syntax error near unexpected token `||'
->>|><
-2
-
 syntax error near unexpected token `|'
-&&
-2
-
 syntax error near unexpected token `&&'
-&&&&&
-2
-
 syntax error near unexpected token `&&'
-&&&&&&&&&&&&&&
-2
-
 syntax error near unexpected token `&&'
-;;
-2
-
 syntax error near unexpected token `;;'
-;;;;;
-2
-
 syntax error near unexpected token `;;'
-;;;;;;;;;;;;;;;
-2
-
 syntax error near unexpected token `;;'
-()
-2
-
 syntax error near unexpected token `)'
-( ( ) )
-2
-
 syntax error near unexpected token `)'
-( ( ( ( ) ) ) )
-2
-
 syntax error near unexpected token `)'
-""
-127
-
 : command not found
-"hola"
-127
-
 hola: command not found
-'hola'
-127
-
 hola: command not found
-''
-127
-
 : command not found
-*
-127
-
 crashtest.c: command not found
-*/*
-127
-
 Docs/attest.cation: command not found
-*/*
-127
-
 */*: No such file or directory
-.
-2
-
 .: filename argument required
-..
-127
-
 ..: command not found
-~
-126
-
 /home/vietdu91: Is a directory
-ABC=hola
-0
-
 : command not found
-4ABC=hola
-127
-
 4ABC=hola: command not found
-hola
-127
-
 hola: command not found
-hola que tal
-127
-
 hola: command not found
-Makefile
-127
-
 Makefile: command not found
