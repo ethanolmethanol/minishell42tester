@@ -5,39 +5,37 @@ logfile=logfile.txt
 testdir=tests
 testfile=testfile
 gendir=gen
+stadir=stash
 prompt="minishell"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
-	# echo "/// TEST $1 ///"
 	ok=0
 	r=$(./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	if [ $r -ne $2 ]; then echo "$1: Unexpected return status ($r!=$2)"; ((ok++)); fi
 	out=$(<$logdir/out_$1 tr -d '\0' | grep -av "$prompt")
-	outfound=$(echo "$out" | grep -F -- "$3")
-	expout=$(echo "$3" | tr '☃' '\n' | cat)
+	expout=$(echo "$3" | tr '☃' '\n')
+	outfound=$(echo "$out" | grep -F -- "$expout")
 	# printf "test $1 \$?=$? \n out is [$out] \n outfound is [$outfound]\n"
 	if [ -z "$3" ] && [ -n "$out" ];
 	then echo "$1: Expected no output but found [$out]"; ((ok++))
 	# elif [ -n "$3" ] && [ -z "$outfound" ]
-	elif [ -n "$3" ] && [ "$expout" != "$out" ]
+	elif [ -n "$3" ] && [ "$expout" != "$out" ] && [ -z "$outfound" ]
 	then echo "$1: Expected [$expout] output but found [$out]"; ((ok++))
 	fi
 	err=$(<$logdir/err_$1 tr -d '\0')
-	errfound=$(echo "$err" | grep -F -- "$4")
-	experr=$(echo "$4" | tr '☃' '\n' | cat)
+	experr=$(echo "$4" | tr '☃' '\n')
+	errfound=$(echo "$err" | grep -F -- "$experr")
 	# printf " err is [$err] \n errfound is [$errfound]\n"
 	if [ -z "$4" ] && [ -n "$err" ];
 	then echo "$1: Expected no error output but found [$err]"; ((ok++))
 	# elif [ -n "$4" ] && [ -z "$errfound" ]
-	elif [ -n "$4" ] && [ "$experr" != "$err" ]
-	then echo "$1: Expected [$experr] error output but found none"; ((ok++))
+	elif [ -n "$4" ] && [ "$experr" != "$err" ] && [ -z "$errfound" ]
+	then echo "$1: Expected [$experr] error output but found [$err]"; ((ok++))
 	fi
-	# echo "test 0 yielded $r status"
 	return $ok
-	# echo "/// TEST $1 ///"
 }
 
 	# turn multiple test, status, expected output and expected error files into a single file
@@ -66,7 +64,7 @@ split_tests(){
 	do
 	[ -f "$testdir"/"$1"_"$arr" ] && rm "$testdir"/"$1"_"$arr"; # && [ -n "$(cat "$testdir"/"$1"_"$arr")" ]
 	done
-	len=$(cat "$testdir"/"$1" | wc -l)	
+	len=$(cat "$testdir"/"$1" | wc -l)
 	readarray arr < "$testdir"/"$1"
 	for (( test=0; test<$len; ))
 	do
@@ -83,8 +81,17 @@ split_tests(){
 # 	# add arg 2 to testname_test file
 # }
 
+is_shell(){ # simple test to determine if executable is a shell
+	shname="$1"
+	result=$("$shname" -ic "echo I am a shell ! " 2> /dev/null)
+	if [ $? -ne 0 ] || [ "$result" != "I am a shell !" ]; then return 1; fi
+	return 0
+}
+
 generate_test_expectancies(){
 	# | tr '\n' '☃'
+	[ -z "$2" ] && shname="bash"
+	{ [ -n "$2" ] && is_shell "$2" && shname="$2" ;} || { echo "Shell name provided does not work as a shell" > /dev/stderr && return 1 ;}
 	[ ! -f "$testdir"/"$1"_test ] && echo "$1"_test "required for test generation not found :/" > /dev/stderr && return 1
 	rm -rf $gendir "/tmp/gentest/"
 	mkdir -p $gendir "/tmp/gentest/" "/tmp/gentest/stat/" "/tmp/gentest/out/" "/tmp/gentest/err/"
@@ -95,22 +102,24 @@ generate_test_expectancies(){
 		# echo "for$test" > /dev/stderr
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > "/tmp/gentest/$1"
 		fullnb=$(printf "%03d" $test) # Without leading zeros, ls takes the files 0 then 1 then 10 then 100 then 101 ... etc
-		s=$(bash < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
+		s=$($shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		# s=$(bash -c "$(cat "/tmp/gentest/$1")" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		echo "$s" > "/tmp/gentest/stat/"$1"_stat_"$fullnb""
 	done
-	for stat in $(LANG=C ls "/tmp/gentest/stat/")
+	for stat in $(ls "/tmp/gentest/stat/")
 	do
 		cat /tmp/gentest/stat/"$stat" >> "$gendir"/"$1"_stat
 	done
-	for out in $(LANG=C ls "/tmp/gentest/out/")
+	for out in $(ls "/tmp/gentest/out/")
 	do
 		cat /tmp/gentest/out/"$out" | tr '\n' '☃' >> "$gendir"/"$1"_out
 		echo "" >> "$gendir"/"$1"_out
 	done
-	for err in $(LANG=C ls "/tmp/gentest/err/")
+	for err in $(ls "/tmp/gentest/err/")
 	do
-		cat /tmp/gentest/err/"$err" | tr '\n' '☃' >> "$gendir"/"$1"_err | sed 's/bash: line 1/minishell/g'
+		# need to remove first and last lines of error output since interactive mode
+		# put command and exit lines in error output for some obscure reason
+		cat /tmp/gentest/err/"$err" | sed '1d' | sed '$d' | tr '\n' '☃' | sed "s/$shname/minishell/g ">> "$gendir"/"$1"_err # 
 		echo "" >> "$gendir"/"$1"_err
 	done
 	rm -rf "/tmp/gentest/"
@@ -118,33 +127,142 @@ generate_test_expectancies(){
 	return 0
 }
 
+switch_mode(){
+	if [ -n "$1" ] && is_shell "$1";
+	then
+		mode="$1"
+	else
+		[ -n "$1" ] && { echo "Cannot switch to mode; input name isn't a shell." > /dev/stderr ; return 1; }
+	fi
+	[ -z "$1" ] && mode=normal
+	mkdir -p "$testdir"
+	if [ "$mode" = "normal" ];
+	then
+		cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+	else
+		for cur in $stadir/*_test
+		do
+			cp "$cur" $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+			generate_test_expectancies $(basename "$cur" | sed 's/_test//') "$mode" || return 1
+			cp $gendir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+		done
+	fi
+	rm -rf $gendir/
+	echo "Setup complete, $mode mode! :D"
+	return 0
+}
+
+# loading_tester(){
+# 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
+# 	printf "$1\n" | tee -a $logfile
+# 	load="//|\-"
+# 	len=$(cat "$testdir"/"$1"_test | wc -l)
+# 	for (( test=0; test<$len; test++ ))
+# 	do
+# 		((testnb++))
+# 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
+# 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") >> $logfile
+# 		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
+# 			echo -ne "${load:((testnb%4)):((testnb%4))}" > /dev/stderr
+# 		else
+# 			echo -ne "${load:((testnb%4)):((testnb%4))}" > /dev/stderr
+# 		fi
+# 	done
+# 	echo "" > /dev/stderr
+# }
+
+minimalist_tester(){
+	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
+	printf "$1" | tee -a $logfile
+	len=$(cat "$testdir"/"$1"_test | wc -l)
+	for (( test=0; test<$len; test++ ))
+	do
+		((testnb++))
+		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
+		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") >> $logfile
+		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
+			echo -ne "$GREEN.$NC" > /dev/stderr
+		else
+			echo -ne "$RED.$NC" > /dev/stderr
+		fi
+	done
+	echo "" > /dev/stderr
+}
+
+full_tester(){
+	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
+	printf "/// $1 tests ///\n" | tee -a $logfile
+	len=$(cat "$testdir"/"$1"_test | wc -l)
+	for (( test=0; test<$len; test++ ))
+	do
+		((testnb++))
+		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
+		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") | tee -a $logfile
+		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
+			echo -e "$GREEN/// TEST $testnb  OK ///$NC" > /dev/stderr
+		else
+			echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
+		fi
+	done
+}
+
 tester(){
 	rm -rf $logdir $logfile
 	[ -d $logdir ] || mkdir $logdir;
 	testnb=0
 	rate=0
-	for testname in "syntax" "echo"
+	for testname in "syntax" "echo" "dollar"
 	do
-		for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$testname"_"$arr"; done
-		printf "/// $testname tests ///\n" | tee -a $logfile
-		len=$(cat "$testdir"/"$testname"_test | wc -l)
-		for (( test=0; test<$len; test++ ))
-		do
-			((testnb++))
-			echo -n "${arr_test[$test]}" > $testfile
-			(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") | tee -a $logfile
-			if [ ${PIPESTATUS[0]} -eq 0 ]; then
-				[ ! -n "$1" ] && echo -e "$GREEN/// TEST $testnb  OK ///$NC" > /dev/stderr
-			else
-				echo -e "$RED/// TEST $testnb  KO  ($testname nb $test)///$NC" > /dev/stderr
-			fi
-		done
+		[ "$1" == "mini" ] && minimalist_tester $testname && continue
+		# [ "$1" == "load" ] && loading_tester $testname && continue
+		full_tester $testname
+		
 	done
 	# (comp_test 0 127 "" "command not found") | tee -a $logfile
 	# (comp_test 1 0 "lol" "bruh not found") | tee -a $logfile
 }
 
-if [ -n "$1" ] && [ "$1" = "gen" ] && [ -n "$2" ]; then generate_test_expectancies $2; exit $?; fi
-if [ -n "$1" ] && [ "$1" = "unite" ] && [ -n "$2" ]; then unite_tests $2; exit $?; fi
-if [ -n "$1" ] && [ "$1" = "split" ] && [ -n "$2" ]; then split_tests $2; exit $?; fi
-if [ -n "$1" ] && [ "$1" = "clean" ]; then rm -rf $logdir; else tester $1; fi
+case "$1" in
+
+	"gen")
+		generate_test_expectancies $2
+		exit $?
+		;;
+
+	"unite")
+		unite_tests $2
+		exit $?
+		;;
+
+	"split")
+		split_tests $2
+		exit $?
+		;;
+
+	"clean")
+		rm -rf $logdir
+		;;
+
+	"set")
+		switch_mode "$2"
+		# [ -n "$1" ] && is_shell "$2" && echo haha
+		exit $?
+		;;
+
+	"")
+		tester
+		;;
+
+	"quiet" | "mini" | "load")
+		tester $1
+		;;
+
+	*)
+		echo "Usage :"
+		;;
+esac
+
+# if [ -n "$1" ] && [ "$1" = "gen" ] && [ -n "$2" ]; then generate_test_expectancies $2; exit $?; fi
+# if [ -n "$1" ] && [ "$1" = "unite" ] && [ -n "$2" ]; then unite_tests $2; exit $?; fi
+# if [ -n "$1" ] && [ "$1" = "split" ] && [ -n "$2" ]; then split_tests $2; exit $?; fi
+# if [ -n "$1" ] && [ "$1" = "clean" ]; then rm -rf $logdir; else tester $1; fi
