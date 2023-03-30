@@ -6,6 +6,7 @@ testdir=tests
 testfile=testfile
 gendir=gen
 stadir=stash
+testarray=("syntax" "echo" "dollar" "envvar")
 prompt="minishell"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -14,7 +15,8 @@ NC='\033[0m'
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	ok=0
 	r=$(./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
-	if [ $r -ne $2 ]; then echo "$1: Unexpected return status ($r!=$2)"; ((ok++)); fi
+	expstat=$(<<< "$2" tr '☃' '\n' | tail -1)
+	if [[ $r -ne $expstat ]]; then echo "$1: Expected [$expstat] status but found [$r]"; ((ok++)); fi
 	out=$(<$logdir/out_$1 tr -d '\0' | grep -av "$prompt")
 	expout=$(echo "$3" | tr '☃' '\n')
 	outfound=$(echo "$out" | grep -F -- "$expout")
@@ -82,8 +84,8 @@ split_tests(){
 # }
 
 is_shell(){ # simple test to determine if executable is a shell
-	shname="$1"
-	result=$("$shname" -ic "echo I am a shell ! " 2> /dev/null)
+	local shname="$1"
+	local result=$("$shname" -ic "echo I am a shell ! " 2> /dev/null)
 	if [ $? -ne 0 ] || [ "$result" != "I am a shell !" ]; then return 1; fi
 	return 0
 }
@@ -108,7 +110,8 @@ generate_test_expectancies(){
 	done
 	for stat in $(ls "/tmp/gentest/stat/")
 	do
-		cat /tmp/gentest/stat/"$stat" >> "$gendir"/"$1"_stat
+		cat /tmp/gentest/stat/"$stat" | tr '\n' '☃' >> "$gendir"/"$1"_stat
+		echo "" >> "$gendir"/"$1"_stat
 	done
 	for out in $(ls "/tmp/gentest/out/")
 	do
@@ -174,7 +177,7 @@ switch_mode(){
 minimalist_tester(){
 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
 	printf "$1" | tee -a $logfile
-	len=$(cat "$testdir"/"$1"_test | wc -l)
+	local len=$(cat "$testdir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
@@ -192,14 +195,14 @@ minimalist_tester(){
 full_tester(){
 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
 	printf "/// $1 tests ///\n" | tee -a $logfile
-	len=$(cat "$testdir"/"$1"_test | wc -l)
+	local len=$(cat "$testdir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") | tee -a $logfile
 		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
-			echo -e "$GREEN/// TEST $testnb  OK ///$NC" > /dev/stderr
+			echo -e "$GREEN/// TEST $testnb  OK  ///$NC" > /dev/stderr
 		else
 			echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
 		fi
@@ -208,10 +211,10 @@ full_tester(){
 
 tester(){
 	rm -rf $logdir $logfile
-	[ -d $logdir ] || mkdir $logdir;
+	mkdir -p $logdir;
 	testnb=0
 	rate=0
-	for testname in "syntax" "echo" "dollar"
+	for testname in ${testarray[@]}
 	do
 		[ "$1" == "mini" ] && minimalist_tester $testname && continue
 		# [ "$1" == "load" ] && loading_tester $testname && continue
@@ -220,6 +223,45 @@ tester(){
 	done
 	# (comp_test 0 127 "" "command not found") | tee -a $logfile
 	# (comp_test 1 0 "lol" "bruh not found") | tee -a $logfile
+}
+
+best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
+	rm -rf $logdir $logfile result1 result2
+	mkdir -p $logdir;
+	(
+		logfile=bo2.txt; testdir=tests2; gendir=gen2; testfile=testfile2;
+		switch_mode "bash"
+		tester 2>&1 | grep "/// TEST" > result2
+		rm -rf $testdir $gendir $logfile $testfile
+	) &
+	(
+		logfile=bo1.txt; testdir=tests1; gendir=gen1; testfile=testfile1;
+		switch_mode
+		tester 2>&1 | grep "/// TEST" > result1
+		rm -rf $testdir $gendir $logfile $testfile
+	) &
+	wait
+	local goodstuff=0
+	local n=0
+	for (( ; n<$(wc -l <result1)-${#testarray[@]}; n++ ))
+	do
+		stat1=$(grep "TEST $n  OK" <result1 >/dev/null; echo $?)
+		stat2=$(grep "TEST $n  OK" <result2 >/dev/null; echo $?)
+		if [ $stat1 -eq 0 ] || [ $stat2 -eq 0 ]; then
+			((goodstuff++))
+			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
+			[ "$1" = "mini" ] && echo -ne "$GREEN.$NC" > /dev/stderr && continue
+			echo -e "$GREEN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" ) ///$NC" | tee -a $logfile
+		else
+			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
+			[ "$1" = "mini" ] && echo -ne "$RED.$NC" > /dev/stderr && continue
+			echo -e "$RED/// TEST $n  KO KO ///$NC" | tee -a $logfile
+		fi
+	done
+	rm -f result1 result2
+	[ "$1" = "mini" ] && echo ""
+	echo -e "\nDone! :D"
+	echo "$goodstuff tests out of $n are OK in at least one of normal or bash mode. Neat."
 }
 
 case "$1" in
@@ -239,13 +281,25 @@ case "$1" in
 		exit $?
 		;;
 
-	"clean")
+	"clean" | "fclean")
 		rm -rf $logdir
+		[ "$1" = "fclean" ] && rm -rf $logfile $testdir/*
 		;;
 
 	"set")
 		switch_mode "$2"
-		# [ -n "$1" ] && is_shell "$2" && echo haha
+		exit $?
+		;;
+
+	"bo2")
+		best_of_2 "$2"
+		exit $?
+		;;
+
+	"test")
+		echo $testfile
+		(echo $testfile; testfile=bob; echo $testfile)
+		echo $testfile
 		exit $?
 		;;
 
@@ -253,7 +307,8 @@ case "$1" in
 		tester
 		;;
 
-	"quiet" | "mini" | "load")
+	"only" | "quiet" | "mini" | "load")
+		[ "$1" = "only" ] && [ $(ls $testdir | grep "$2"_test | wc -c) -gt 0 ] && testarray=("$2")
 		tester $1
 		;;
 

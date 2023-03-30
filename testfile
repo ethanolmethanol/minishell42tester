@@ -1,1 +1,1 @@
-$LESS$VAR
+export hola | unset hola | echo $?

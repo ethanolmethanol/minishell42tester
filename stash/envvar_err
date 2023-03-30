@@ -1,0 +1,158 @@
+
+env: ʻhola’: No such file or directory☃
+env: ʻhola’: No such file or directory☃
+
+
+
+env: ‘./Makefile’: Permission denied
+
+
+
+
+
+
+
+minishell: export: `': not a valid identifier
+minishell: export: ʻ=': not a valid identifier
+minishell: export: ʻ%': not a valid identifier
+minishell: export: `0': not a valid identifier
+minishell: export: ʻ?=2': not a valid identifier
+minishell: export: ʻ9HOLA=': not a valid identifier
+
+
+
+
+minishell: export: ʻHOL@=bonjour’: not a valid identifier
+minishell: export: `HOL~A=bonjour': not a valid identifier
+minishell: export: -H: invalid option
+minishell: export: --: invalid option
+minishell: export: `HOLA-=bonjour': not a valid identifier
+minishell: export: `HO-LA=bonjour': not a valid identifier
+minishell: export: `HOL.A=bonjour': not a valid identifier
+minishell: export: `HOL\$A=bonjour': not a valid identifier
+minishell: export: `HO\\LA=bonjour': not a valid identifier
+minishell: export: `HOL}A=bonjour': not a valid identifier
+minishell: export: `HOL{A=bonjour': not a valid identifier
+minishell: export: `HO*LA=bonjour': not a valid identifier
+minishell: export: `HO#LA=bonjour': not a valid identifier
+minishell: export: `HO@LA=bonjour': not a valid identifier
+minishell: !LA=bonjour: event not found
+
+minishell: export: `+HOLA=bonjour': not a valid identifier☃
+minishell: export: `HOL+A=bonjour': not a valid identifier☃
+
+
+
+minishell: export: ʻ=bonjour’: not a valid identifier
+minishell: export: ʻ=': not a valid identifier
+
+
+
+
+
+
+
+
+
+minishell: syntax error near unexpected token `('☃
+minishell: syntax error near unexpected token `('☃
+jour: command not found☃
+
+jour: command not found☃HOLA=bon☃"
+minishell: !jour: event not found☃
+
+
+
+
+
+
+
+
+
+
+
+
+minishell: export: `': not a valid identifier☃
+
+
+
+
+
+
+
+
+
+
+
+
+
+ls -la: command not found
+l$HOLA: command not found
+
+
+
+$HOLAs: command not found
+
+minishell: export: `TE+S=T': not a valid identifier
+minishell: export: `=': not a valid identifier
+minishell: export: `=': not a valid identifier
+minishell: export: `===': not a valid identifier
+minishell: export: `===': not a valid identifier
+pBYEd: command not found
+p$BYEd: command not found
+
+HOLABYEd: command not found
+HOLABYEd: command not found
+echo -n: command not found
+
+
+
+
+minishell: ls: No such file or directory
+minishell: unset: `': not a valid identifier
+
+
+
+
+minishell: unset: `9HOLA': not a valid identifier
+
+minishell: unset: `HOL?A': not a valid identifier
+minishell: unset: `HOL?A': not a valid identifier
+minishell: unset: `HOL?A': not a valid identifier
+minishell: unset: `HOL?A': not a valid identifier☃minishell: unset: `HOL.A': not a valid identifier☃
+minishell: unset: `HOLA=': not a valid identifier
+minishell: unset: `HOL\\A': not a valid identifier
+A: command not found
+minishell: unset: `HOL.A': not a valid identifier
+minishell: unset: `HOL+A': not a valid identifier
+minishell: unset: `HOL=A': not a valid identifier
+minishell: unset: `HOL{A': not a valid identifier
+minishell: unset: `HOL}A': not a valid identifier
+minishell: unset: `HOL-A': not a valid identifier
+minishell: unset: -H: invalid option
+
+
+
+minishell: unset: `HOL*A': not a valid identifier
+minishell: unset: `HOL#A': not a valid identifier
+
+minishell: unset: `/home/vietdu91/42_works/minishell': not a valid identifier
+minishell: unset: `HOL@': not a valid identifier
+minishell: !A: event not found
+minishell: unset: `HOL^A': not a valid identifier
+
+minishell: unset: `HOL~': not a valid identifier
+minishell: unset: `': not a valid identifier☃☃
+
+minishell: cat: No such file or directory☃
+minishell: unset: `=': not a valid identifier
+minishell: unset: `======': not a valid identifier
+minishell: unset: `++++++': not a valid identifier
+
+
+
+
+
+
+
+
