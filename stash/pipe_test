@@ -1,0 +1,56 @@
+cat | cat | cat | ls
+ls | exit
+ls | exit 42
+exit | ls
+echo hola > bonjour☃exit | cat -e bonjour
+echo hola > bonjour☃cat -e bonjour | exit
+echo | echo
+echo hola | echo que tal
+pwd | echo hola
+env | echo hola
+echo oui | cat -e
+echo oui | echo non | echo hola | grep oui
+echo oui | echo non | echo hola | grep non
+echo oui | echo non | echo hola | grep hola
+echo hola | cat -e | cat -e | cat -e
+cd .. | echo "hola"
+cd / | echo "hola"
+cd .. | pwd
+ifconfig | grep ":"
+ifconfig | grep hola
+whoami | grep $USER
+whoami | grep $USER > /tmp/bonjour☃cat /tmp/bonjour
+whoami | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
+whereis ls | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
+ls | hola
+ls | ls hola
+ls | ls | hola
+ls | hola | ls
+ls | ls | hola | rev
+ls | ls | echo hola | rev
+ls -la | grep "."
+ls -la | grep "'.'"
+echo test.c | cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e|cat -e|cat -e|cat -e
+ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls☃|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls
+echo hola | cat | cat | cat | cat | cat | grep hola
+echo hola | cat
+echo hola| cat
+echo hola |cat
+echo hola|cat
+echo hola || cat
+echo hola ||| cat
+ech|o hola | cat
+cat Makefile | cat -e | cat -e
+cat Makefile | grep srcs | cat -e
+cat Makefile | grep srcs | grep srcs | cat -e
+cat Makefile | grep pr | head -n 5 | cd file_not_exist
+cat Makefile | grep pr | head -n 5 | hello
+export HOLA=bonjour | cat -e | cat -e
+unset HOLA | cat -e
+export HOLA | echo hola☃env | grep PROUT
+export | echo hola
+sleep 3 | sleep 3
+time sleep 3 | sleep 3
+sleep 3 | exit
+exit | sleep 3
+echo hola > a☃>>b echo que tal☃cat a | <b cat | cat > c | cat

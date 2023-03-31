@@ -6,7 +6,7 @@ testdir=tests
 testfile=testfile
 gendir=gen
 stadir=stash
-testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit")
+testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "parandor")
 prompt="minishell"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -190,7 +190,8 @@ minimalist_tester(){
 		((testnb++))
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") >> $logfile
-		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
+		if [ ${PIPESTATUS[0]} -eq 0 ]; then
+			((succ++))
 			echo -ne "$GREEN.$NC" > /dev/stderr
 		else
 			echo -ne "$RED.$NC" > /dev/stderr
@@ -208,28 +209,27 @@ full_tester(){
 		((testnb++))
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") | tee -a $logfile
-		if [ ${PIPESTATUS[0]} -eq 0 ] && [ "$1" != "quiet" ]; then
-			echo -e "$GREEN/// TEST $testnb  OK  ///$NC" > /dev/stderr
+		if [ ${PIPESTATUS[0]} -eq 0 ]; then
+			((succ++))
+			[ "$2" != "quiet" ] && echo -e "$GREEN/// TEST $testnb  OK  ///$NC" > /dev/stderr
 		else
-			echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
+			[ "$2" != "quiet" ] && echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
 		fi
 	done
 }
 
-tester(){
+function tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 	rm -rf $logdir $logfile
 	mkdir -p $logdir;
 	testnb=0
-	rate=0
+	succ=0
 	for testname in ${testarray[@]}
 	do
-		[ "$1" == "mini" ] && minimalist_tester $testname && continue
+		[ "$1" == "mini" ] && minimalist_tester $testname && wait && continue
 		# [ "$1" == "load" ] && loading_tester $testname && continue
-		full_tester $testname
-		
+		full_tester $testname "$1"
 	done
-	# (comp_test 0 127 "" "command not found") | tee -a $logfile
-	# (comp_test 1 0 "lol" "bruh not found") | tee -a $logfile
+	echo -e "Your minishell succeeded $GREEN$succ$NC out of $testnb tests! :D" > /dev/stderr
 }
 
 best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
@@ -290,7 +290,7 @@ case "$1" in
 		;;
 
 	"clean" | "fclean")
-		rm -rf $logdir*
+		rm -rf $logdir* a b c bonjour hola
 		[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
 		;;
 
