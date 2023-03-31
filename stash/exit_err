@@ -1,0 +1,46 @@
+exit☃
+exit☃minishell: exit: exit: numeric argument required☃
+exit☃minishell: exit: hola: numeric argument required☃
+exit☃minishell: exit: hola: numeric argument required☃
+exit☃
+exit☃
+exit☃
+exit☃minishell: exit: too many arguments☃
+exit☃minishell: exit: too many arguments☃
+exit☃minishell: exit: hola: numeric argument required☃
+exit☃minishell: exit: too many arguments☃
+exit☃minishell: exit: too many arguments
+exit☃minishell: exit: hola: numeric argument required☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃minishell: exit: too many arguments☃
+exit☃minishell: exit: --666: numeric argument required☃
+exit☃minishell: exit: ++++666: numeric argument required☃
+exit☃minishell: exit: ++++++0: numeric argument required☃
+exit☃minishell: exit: ------0: numeric argument required☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃minishell: exit: ----666: numeric argument required☃
+exit☃minishell: exit: ++++666: numeric argument required☃
+exit☃
+exit☃
+exit☃minishell: exit: '666': numeric argument required☃
+exit☃minishell: exit: "666": numeric argument required☃
+exit☃
+exit☃
+exit☃
+exit☃
+exit☃minishell: exit: 9223372036854775808: numeric argument required☃
+exit☃
+exit☃minishell: exit: -9223372036854775809: numeric argument required☃

@@ -1,0 +1,71 @@
+
+
+
+
+pwd: -p: invalid option☃
+pwd: --: invalid option☃
+pwd: --: invalid option☃
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd: too many arguments☃
+
+
+
+
+
+cd: sr: No such file or directory☃
+cd: Makefile: Not a directory☃
+
+
+cd: .././../.././../bin/ls: No such file or directory☃
+
+
+
+
+
+
+
+cd: /minishell: No such file or directory☃
+
+cd: _: No such file or directory☃
+
+
+cd: --: invalid option☃
+
+cd: too many arguments☃
+
+
+cd: $PWD/srcs: No such file or directory☃
+cd: HOME not set☃
+
+cd: HOME not set☃
+cd: too many arguments☃
+
+
+
+
+
+cd: minishell: No such file or directory☃
+cd: too many arguments☃
+chdir: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory☃
+pwd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory☃
+
+
+
+
+
+
+

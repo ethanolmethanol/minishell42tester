@@ -66,7 +66,7 @@ export HOLA=bonjour=casse-toi☃echo $HOLA
 export ""HOLA=bonjour""=casse-toi☃echo $HOLA
 export HOLA=bonjour☃export BYE=casse-toi☃echo $HOLA et $BYE
 export HOLA=bonjour BYE=casse-toi☃echo $HOLA et $BYE
-export $HOLA=bonjour☃env"
+export $HOLA=bonjour☃env
 export HOLA=""bonjour      ""  ☃echo $HOLA | cat -e
 export HOLA=""   -n bonjour   ""  ☃echo $HOLA
 export HOLA=""bonjour   ""/☃echo $HOLA
@@ -142,7 +142,7 @@ unset HOL!A
 unset HOL^A
 unset HOL$?A
 unset HOL\~A
-unset """" HOLA☃env | grep HOLA
+unset "" HOLA☃env | grep HOLA
 unset PATH☃echo $PATH
 unset PATH☃cat Makefile
 unset =

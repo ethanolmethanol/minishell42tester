@@ -6,7 +6,7 @@ testdir=tests
 testfile=testfile
 gendir=gen
 stadir=stash
-testarray=("syntax" "echo" "dollar" "envvar")
+testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit")
 prompt="minishell"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -15,27 +15,32 @@ NC='\033[0m'
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	ok=0
 	r=$(./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
-	expstat=$(<<< "$2" tr '☃' '\n' | tail -1)
-	if [[ $r -ne $expstat ]]; then echo "$1: Expected [$expstat] status but found [$r]"; ((ok++)); fi
+	expstat=$(echo "$2" | tr '☃' '\n' | tail -1)
+	if [[ $r -ne $expstat ]]; then
+		echo -n "$1: Expected [$expstat] status but found [$r]";
+		[ $r -eq 139 ] && echo " A.K.A. SIGSEGV or SEGMENTATION FAULT or CRASH !!!"
+		echo ""
+		((ok++));
+	fi
 	out=$(<$logdir/out_$1 tr -d '\0' | grep -av "$prompt")
 	expout=$(echo "$3" | tr '☃' '\n')
 	outfound=$(echo "$out" | grep -F -- "$expout")
 	# printf "test $1 \$?=$? \n out is [$out] \n outfound is [$outfound]\n"
 	if [ -z "$3" ] && [ -n "$out" ];
-	then echo "$1: Expected no output but found [$out]"; ((ok++))
+	then echo "$1: Expected no output but found [$(echo "$out" | head -5)]"; ((ok++))
 	# elif [ -n "$3" ] && [ -z "$outfound" ]
 	elif [ -n "$3" ] && [ "$expout" != "$out" ] && [ -z "$outfound" ]
-	then echo "$1: Expected [$expout] output but found [$out]"; ((ok++))
+	then echo "$1: Expected [$(echo "$expout" | head -5)] output but found [$(echo "$out" | head -5)]"; ((ok++))
 	fi
 	err=$(<$logdir/err_$1 tr -d '\0')
 	experr=$(echo "$4" | tr '☃' '\n')
 	errfound=$(echo "$err" | grep -F -- "$experr")
 	# printf " err is [$err] \n errfound is [$errfound]\n"
 	if [ -z "$4" ] && [ -n "$err" ];
-	then echo "$1: Expected no error output but found [$err]"; ((ok++))
+	then echo "$1: Expected no error output but found [$(echo "$err" | head -5)]"; ((ok++))
 	# elif [ -n "$4" ] && [ -z "$errfound" ]
 	elif [ -n "$4" ] && [ "$experr" != "$err" ] && [ -z "$errfound" ]
-	then echo "$1: Expected [$experr] error output but found [$err]"; ((ok++))
+	then echo "$1: Expected [$(echo "$experr" | head -5)] error output but found [$(echo "$err" | head -5)]"; ((ok++))
 	fi
 	return $ok
 }
@@ -110,8 +115,8 @@ generate_test_expectancies(){
 	done
 	for stat in $(ls "/tmp/gentest/stat/")
 	do
-		cat /tmp/gentest/stat/"$stat" | tr '\n' '☃' >> "$gendir"/"$1"_stat
-		echo "" >> "$gendir"/"$1"_stat
+		cat /tmp/gentest/stat/"$stat" >> "$gendir"/"$1"_stat # | tr '\n' '☃' 
+		# echo "" >> "$gendir"/"$1"_stat
 	done
 	for out in $(ls "/tmp/gentest/out/")
 	do
@@ -120,9 +125,11 @@ generate_test_expectancies(){
 	done
 	for err in $(ls "/tmp/gentest/err/")
 	do
-		# need to remove first and last lines of error output since interactive mode
-		# put command and exit lines in error output for some obscure reason
-		cat /tmp/gentest/err/"$err" | sed '1d' | sed '$d' | tr '\n' '☃' | sed "s/$shname/minishell/g ">> "$gendir"/"$1"_err # 
+		# need to remove all prompt lines of error output since interactive mode
+		# puts prompt lines in error output for some obscure reason
+		local content=$(cat /tmp/gentest/err/"$err")
+		[ -n "$content" ] && content=$(echo -n "$content" | grep -v "$(echo $content | head -1 | head -c 10)")
+		echo -n "$content" | tr '\n' '☃' | sed "s/$shname/minishell/g ">> "$gendir"/"$1"_err # | sed '1d' | sed '$d'
 		echo "" >> "$gendir"/"$1"_err
 	done
 	rm -rf "/tmp/gentest/"
@@ -229,16 +236,16 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	rm -rf $logdir $logfile result1 result2
 	mkdir -p $logdir;
 	(
-		logfile=bo2.txt; testdir=tests2; gendir=gen2; testfile=testfile2;
-		switch_mode "bash"
+		logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
+		[ -d $testdir ] || switch_mode "bash"
 		tester 2>&1 | grep "/// TEST" > result2
-		rm -rf $testdir $gendir $logfile $testfile
+		rm -rf $gendir $logfile $testfile
 	) &
 	(
-		logfile=bo1.txt; testdir=tests1; gendir=gen1; testfile=testfile1;
-		switch_mode
+		logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
+		[ -d $testdir ] || switch_mode
 		tester 2>&1 | grep "/// TEST" > result1
-		rm -rf $testdir $gendir $logfile $testfile
+		rm -rf $gendir $logfile $testfile
 	) &
 	wait
 	local goodstuff=0
@@ -258,6 +265,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 			echo -e "$RED/// TEST $n  KO KO ///$NC" | tee -a $logfile
 		fi
 	done
+	cat result1 result2 > $logfile
 	rm -f result1 result2
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
@@ -282,8 +290,8 @@ case "$1" in
 		;;
 
 	"clean" | "fclean")
-		rm -rf $logdir
-		[ "$1" = "fclean" ] && rm -rf $logfile $testdir/*
+		rm -rf $logdir*
+		[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
 		;;
 
 	"set")
