@@ -22,7 +22,7 @@ comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdo
 		echo ""
 		((ok++));
 	fi
-	out=$(<$logdir/out_$1 tr -d '\0' | grep -av "$prompt")
+	out=$(<$logdir/out_$1 tr -d '\0' | grep -av "^$prompt")
 	expout=$(echo "$3" | tr '☃' '\n')
 	outfound=$(echo "$out" | grep -F -- "$expout")
 	# printf "test $1 \$?=$? \n out is [$out] \n outfound is [$outfound]\n"
