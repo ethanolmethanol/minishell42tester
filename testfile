@@ -1,4 +1,4 @@
-export CDPATH=./
+ls -z || (cd ../../..&&pwd)
 
 
-cd ..
+pwd

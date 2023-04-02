@@ -109,7 +109,7 @@ generate_test_expectancies(){
 		# echo "for$test" > /dev/stderr
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > "/tmp/gentest/$1"
 		fullnb=$(printf "%03d" $test) # Without leading zeros, ls takes the files 0 then 1 then 10 then 100 then 101 ... etc
-		s=$($shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
+		s=$(env --unset=command_not_found_handle $shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		# s=$(bash -c "$(cat "/tmp/gentest/$1")" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		echo "$s" > "/tmp/gentest/stat/"$1"_stat_"$fullnb""
 	done
@@ -230,6 +230,7 @@ function tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 		full_tester $testname "$1"
 	done
 	echo -e "Your minishell succeeded $GREEN$succ$NC out of $testnb tests! :D" > /dev/stderr
+	[ -n $(grep "SEGV" $logfile) ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
 }
 
 best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
@@ -238,19 +239,19 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	(
 		logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
 		[ -d $testdir ] || switch_mode "bash"
-		tester 2>&1 | grep "/// TEST" > result2
+		tester 2>&1 | cat > result2 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
 	(
 		logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
 		[ -d $testdir ] || switch_mode
-		tester 2>&1 | grep "/// TEST" > result1
+		tester 2>&1 | cat > result1 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
 	wait
 	local goodstuff=0
-	local n=0
-	for (( ; n<$(wc -l <result1)-${#testarray[@]}; n++ ))
+	local n=1
+	for (( ; n<=$( <result1 grep "/// TEST" | wc -l ); n++ )) #-${#testarray[@]}
 	do
 		stat1=$(grep "TEST $n  OK" <result1 >/dev/null; echo $?)
 		stat2=$(grep "TEST $n  OK" <result2 >/dev/null; echo $?)
@@ -260,15 +261,16 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 			[ "$1" = "mini" ] && echo -ne "$GREEN.$NC" > /dev/stderr && continue
 			echo -e "$GREEN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" ) ///$NC" | tee -a $logfile
 		else
-			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
+			$(grep "TEST $n  KO" <result1 >>$logfile; grep "^$n:" <result1 >>$logfile; grep "^$n:" <result2 >>$logfile)
+			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo ""
 			[ "$1" = "mini" ] && echo -ne "$RED.$NC" > /dev/stderr && continue
-			echo -e "$RED/// TEST $n  KO KO ///$NC" | tee -a $logfile
+			echo -e "$RED/// TEST $n  KO KO ///$NC"
 		fi
 	done
-	cat result1 result2 > $logfile
 	rm -f result1 result2
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
+	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
 	echo "$goodstuff tests out of $n are OK in at least one of normal or bash mode. Neat."
 }
 
@@ -290,7 +292,7 @@ case "$1" in
 		;;
 
 	"clean" | "fclean")
-		rm -rf $logdir* a b c bonjour hola
+		rm -rf $logdir* a b c bonjour hola hey pwd
 		[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
 		;;
 
