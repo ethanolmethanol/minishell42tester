@@ -7,11 +7,13 @@ testfile=testfile
 gendir=gen
 stadir=stash
 pckdir=".pack"
+ignfile=".testignore"
 # make a description array to describe each test in usage
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "parandor")
 prompt="minishell"
 RED='\033[0;31m'
 GRN='\033[0;32m'
+ORN='\033[38;2;255;165;0m'
 NC='\033[0m'
 
 comp_stat(){ # $1 testnb  $2 expected stat  $3 actual stat
@@ -115,6 +117,38 @@ unpack_tests(){
 	echo "Unpacking of $1 tests successful! :D"
 }
 
+ignore_tests(){
+	if [ ! -f "$ignfile" ]; then
+	for testname in ${testarray[@]}; do echo "$testname;" >> "$ignfile"; done
+	fi
+	[ -z "$(grep "$1" "$ignfile")" ] && echo "Invalid test unit name. Couldn't ignore." && return 1
+	to_ignore="$1"
+	shift
+	for ignore in "$@";
+	do
+	is_ignored "$to_ignore" "$ignore" || sed -i "s/$to_ignore;/$to_ignore; $ignore ;/" "$ignfile";
+	done
+	echo "All done! :D"
+}
+
+notignore_tests(){
+	[ ! -f "$ignfile" ] && echo "Ignore file '$ignfile' not found, nothing to not-ignore." && return 1
+	[ -z "$(grep "$1" "$ignfile")" ] && echo "Invalid test unit name. Couldn't ignore." && return 1
+	to_ignore="$1"
+	shift
+	for ignore in "$@";
+	do
+	is_ignored "$to_ignore" "$ignore" && sed -i "s/^$to_ignore;.*$/$(grep "$to_ignore" "$ignfile" | sed "s/; $ignore ;/;/" )/" "$ignfile";
+	done
+	echo "All done! :D"
+}
+
+is_ignored(){
+	[ ! -f "$ignfile" ] && return 1
+	[ -n "$(grep "$1" "$ignfile" | grep "; $2 ;")" ] && return 0
+	return 1
+}
+
 # add_test(){
 # 	# add arg 2 to testname_test file
 # }
@@ -180,6 +214,7 @@ switch_mode(){
 	mkdir -p "$testdir"
 	if [ "$mode" = "normal" ];
 	then
+		[ ! -d $stadir/ ] && { unpack_tests || { echo "Unpack fail." > /dev/stderr ; return 1 ; } ; }
 		cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 	else
 		for cur in $stadir/*_test
@@ -196,11 +231,13 @@ switch_mode(){
 
 minimalist_tester(){
 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
-	printf "$1" | tee -a $logfile
+	printf "$1" | tee -a $logfile; echo >> $logfile
+	is_ignored "$1" "all" && printf "$ORN SKIPPED $NC\n" && return 0
 	local len=$(cat "$testdir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
+		is_ignored "$1" "$((test + 1))" && let "++ign" && echo -ne "$ORN.$NC" > /dev/stderr && continue
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") >> $logfile
 		if [ ${PIPESTATUS[0]} -eq 0 ]; then
@@ -216,41 +253,44 @@ minimalist_tester(){
 full_tester(){
 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
 	printf "/// $1 tests ///\n" | tee -a $logfile
+	is_ignored "$1" "all" && printf "$ORN/// SKIPPED ///$NC\n" && return 0
 	local len=$(cat "$testdir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
+		is_ignored "$1" "$((test + 1))" && let "++ign" && echo -e "$ORN/// TEST $testnb SKIP ///$NC" > /dev/stderr && continue
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' > $testfile
 		(comp_test "$testnb" "${arr_stat[$test]}" "${arr_out[$test]}" "${arr_err[$test]}") | tee -a $logfile
 		if [ ${PIPESTATUS[0]} -eq 0 ]; then
 			((succ++))
-			[ "$2" != "quiet" ] && echo -e "$GRN/// TEST $testnb  OK  ///$NC" > /dev/stderr
+			echo -e "$GRN/// TEST $testnb  OK  ///$NC" > /dev/stderr
 		else
-			[ "$2" != "quiet" ] && echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
+			echo -e "$RED/// TEST $testnb  KO  ($1 nb $((test + 1)))///$NC" > /dev/stderr
 		fi
 	done
 }
 
 tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
-	[ ! -d "$testdir" ] && echo "Dir '$testdir' needed for testing missing. Retry after doing 'unpack' then 'set' or 'set bash'" && return 1
+	[ ! -d "$testdir" ] && echo "Dir '$testdir' needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
 	for testname in ${testarray[@]}
 	do
 		for arr in "test" "stat" "out" "err"
-		do	[ ! -f "$testdir"/"$testname"_"$arr" ] && echo "File '$testdir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'unpack' then 'set' or 'set bash'" && return 1
+		do	[ ! -f "$testdir"/"$testname"_"$arr" ] && echo "File '$testdir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
 		done
 	done
 	rm -rf $logdir $logfile
 	mkdir -p $logdir;
 	testnb=0
 	succ=0
+	ign=0
 	for testname in ${testarray[@]}
 	do
 		[ "$1" == "mini" ] && minimalist_tester $testname && wait && continue
-		# [ "$1" == "load" ] && loading_tester $testname && continue
-		full_tester $testname "$1"
+		[ "$1" == "quiet" ] && full_tester $testname > /dev/null && continue
+		full_tester $testname
 	done
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
-	echo -e "Your minishell succeeded $GRN$succ$NC out of $testnb tests! :D" > /dev/stderr
+	echo -e "Your minishell succeeded $GRN$succ$NC out of $(($testnb-$ign)) tests! :D" > /dev/stderr
 }
 
 loader(){
@@ -271,7 +311,7 @@ loader(){
 	local b=0
 	echo
 	while $(kill -0 $@ 2> /dev/null)
-	do printf "\rLoading ${load[$b]::((a%50))} $b "; let "a++"; let "b=(a/50)%${#load[@]}"; sleep .025
+	do printf "\rLoading ${load[(($b%${#load[@]}))]::((a%50))} $b "; let "a++"; let "b=a/50"; sleep .025
 	done
 	echo; echo "All done !"
 }
@@ -320,10 +360,10 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	echo "$goodstuff tests out of $n are OK in at least one of normal or bash mode. Neat."
 }
 
-# add .testignore file that contains tests that get skipped and corresponding command
 # add comp_val for valgrind stuff
 # add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
-# check better for 'only' that all provided args are valid tests
+# make nicer argument parsing with while loop and shift :)
+# while $# do
 case "$1" in 
 
 	"gen")		generate_test_expectancies $2; exit $?;;
@@ -331,13 +371,21 @@ case "$1" in
 	"split")	split_tests $2; exit $?;;
 	"pack")		pack_tests; exit $?;;
 	"unpack")	unpack_tests; exit $?;;
+	"i" | "ignore")
+		shift
+		ignore_tests "$@"
+		;;
+	"n" | "notignore")
+		shift
+		notignore_tests "$@"
+		;;
 	"c" | "clean" | "fclean")
 		rm -rf $logdir* a b c bonjour hola hey pwd
 		[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
 		echo "All $1!"
 		exit 0
 		;;
-	"set")
+	"s" | "set")
 		switch_mode "$2"
 		exit $?
 		;;
@@ -354,17 +402,27 @@ case "$1" in
 		testarray=("parandor")
 		tester
 		;;
-	"only" | "quiet" | "mini")
-		[ "$1" = "only" ] && [ $(ls $testdir | grep "$2"_test | wc -c) -gt 0 ] && testarray=("${@[@]:1}")
+	"o" | "only")
+		shift
+		for a in $@
+		do	[ $(ls $testdir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
+		done
+		testarray=("$@")
+		tester
+		;;
+	"quiet" | "mini")
 		tester $1
 		;;
 	"-h" | "--help" | "help" | "usage" | *)
 		echo
 		echo -e "/^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^ ^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^\\"
-		echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t|\tBy emis aka Ethan. With love."
+		echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t|\tBy emis a.k.a. Ethan. With love."
 		echo -e "\\_ __ __ __ __ __ __ __ __ _ _ __ __ __ __ __ __ __ __ _/"
 		echo
 		echo -e "\tUsage -- modes:"
+		echo
+		echo " - [s]et	: prepare test files for normal mode."
+		echo "   [s]et bash	: generate test files for bash mode."
 		echo
 		echo " - [r]un	: run all tests this tester has. See test units."
 		echo
@@ -372,12 +430,22 @@ case "$1" in
 		echo
 		echo " - [b]onus	: run all bonus part tests."
 		echo
+		echo " - mini		: minimalism."
+		echo
+		echo " - quiet	: just the results. Error messages are only in $logfile."
+		echo
+		echo " - [o]nly	: run all test units specified after 'only' or 'o'."
+		echo
+		echo " - [i]gnore	: a more permanent alternative to 'only'. Specify a test unit and which test number to skip, or 'all' to skip the unit altogether."
+		echo
+		echo " - [n]otignore	: remove tests from ignore list."
+		echo
 		echo " - bo2		: Best Of 2; run normal and bash mode simultaneously. Useful to check which tests pass either, or fail both."
 		echo "   bo2 mini	: a minimalist, less overwhelming version of bo2."
 		echo
-		echo " - [c]lean	: A classic. Cleans up individual logs and other test-related files."
+		echo " - [c]lean	: a classic. Cleans up individual logs and other test-related files."
 		echo
-		echo " - fclean	: Thorough cleaning. Deletes logfile and all generated/set test directories."
+		echo " - fclean	: thorough cleaning. Deletes logfile and all generated/set test directories."
 		echo
 		echo -e "\tUsage -- test units:"
 		echo
@@ -386,6 +454,8 @@ case "$1" in
 		done
 		;;
 esac
+# shift
+# done
 
 # if [ -n "$1" ] && [ "$1" = "gen" ] && [ -n "$2" ]; then generate_test_expectancies $2; exit $?; fi
 # if [ -n "$1" ] && [ "$1" = "unite" ] && [ -n "$2" ]; then unite_tests $2; exit $?; fi
