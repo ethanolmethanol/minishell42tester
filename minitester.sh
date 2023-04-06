@@ -8,13 +8,93 @@ gendir=gen
 stadir=stash
 pckdir=".pack"
 ignfile=".testignore"
-# make a description array to describe each test in usage
-testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "parandor")
+testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "parandor" "wildcard")
+# testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+mod=()
 prompt="minishell"
 RED='\033[0;31m'
 GRN='\033[0;32m'
 ORN='\033[38;2;255;165;0m'
 NC='\033[0m'
+
+# add comp_val for valgrind stuff
+# add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
+# make nicer argument parsing with while loop and shift :)
+main(){
+	while [ $# -ne 0 ]
+	do
+	case "$1" in 
+		"gen")		generate_test_expectancies $2; exit $?;;
+		"unite")	unite_tests $2; exit $?;;
+		"split")	split_tests $2; exit $?;;
+		"pack")		pack_tests; exit $?;;
+		"unpack")	unpack_tests; exit $?;;
+		"p" | "peek")
+			shift
+			peek_test "$@";
+			exit $?
+			;;
+		"i" | "ignore")
+			shift
+			ignore_tests "$@"
+			exit $?
+			;;
+		"n" | "notignore")
+			shift
+			notignore_tests "$@"
+			exit $?
+			;;
+		"c" | "clean" | "fclean")
+			rm -rf $logdir* a b c bonjour hola hey pwd
+			[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
+			echo "All $1!"
+			exit 0
+			;;
+		"s" | "set")
+			switch_mode "$2"
+			exit $?
+			;;
+		"bo2")
+			mod+=("$1")
+			;;
+		"r" | "run");;
+		"m" | "mandatory")
+			testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
+			;;
+		"b" | "bonus")
+			testarray=("parandor" "wildcard")
+			;;
+		"o" | "only")
+			shift
+			for a in $@
+			do	[ $(ls $testdir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
+			done
+			testarray=("$@")
+			break
+			;;
+		"quiet" | "mini")
+			mod+=("$1")
+			;;
+		"-h" | "--help" | "help" | "usage" | "man" | "i'm lost" | "wtf" | "RTFM")
+			get_man
+			exit $?
+			;;
+		*)
+		echo "Whoops! Not a valid argument. Try 'man' if you're lost."
+		exit 1
+		;;
+	esac
+	shift
+	done
+	echo -e "/^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^ ^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^\\"
+	echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t| ~ By emis. With love."
+	echo -e "\\_ __ __ __ __ __ __ __ __ _ _ __ __ __ __ __ __ __ __ _/\n"
+	# echo "mod mini $(modifier_set "mini"; echo $?)"
+	# echo "mod bo2 $(modifier_set "bo2"; echo $?)"
+	modifier_set "bo2" && best_of_2 && exit $?
+	tester
+	exit $?
+}
 
 comp_stat(){ # $1 testnb  $2 expected stat  $3 actual stat
 	local expstat=$(echo "$2" | tr '☃' '\n' | tail -1)
@@ -55,6 +135,36 @@ comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdo
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
 	return $ok
+}
+
+get_nth_line(){ # $1 is file  $2 is line nb
+	sed "${2}q;d" "$1"
+}
+
+peek_test(){
+	[ ! -d "$testdir" ] && echo "No test directory found. Set a mode, and try again." && return 1
+	[ -z "$(grep "$1"_ <(ls "$testdir"))" ] && echo "Invalid test unit name. Couldn't find." && return 1
+	[ $# -eq 1 ] && echo "Specify at least one test to peek." && return 1
+	unit="$1"
+	shift
+	lines=("$@")
+	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$testdir/$unit"_test | wc -l)")")
+	for line in $lines
+	do
+		[ "$line" -eq "$line" ] || echo "Specified test number '$line' is, in fact, not a number. Ouch."; [ ! $? ] && return 1
+		[ $line -le 0 ] && echo "Specified test number '$line' is, in fact, too small. Ouch." && return 1
+		[ $line -gt $(cat "$testdir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is, in fact, too big. Ouch." && return 1
+		echo -ne "Test $line for $unit:\t"
+		get_nth_line "$testdir/$unit"_test "$line" || echo "Error occured" "file $testdir/$unit"_test "line $line"
+		echo -ne "Expected stdout:\t"
+		get_nth_line "$testdir/$unit"_out "$line" || echo "Error occured" "file $testdir/$unit"_out "line $line"
+		echo -ne "Expected stderr:\t"
+		get_nth_line "$testdir/$unit"_err "$line" || echo "Error occured" "file $testdir/$unit"_err "line $line"
+		echo -ne "Expected status:\t"
+		get_nth_line "$testdir/$unit"_stat "$line" || echo "Error occured" "file $testdir/$unit"_stat "line $line"
+		echo
+	done
+	echo "All done! :D"
 }
 
 	# turn multiple test, status, expected output and expected error files into a single file
@@ -229,6 +339,11 @@ switch_mode(){
 	return 0
 }
 
+modifier_set(){
+	printf '%s\n' "${mod[@]}" | grep -q -P "^$1$"
+	return $?
+}
+
 minimalist_tester(){
 	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
 	printf "$1" | tee -a $logfile; echo >> $logfile
@@ -285,8 +400,8 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 	ign=0
 	for testname in ${testarray[@]}
 	do
-		[ "$1" == "mini" ] && minimalist_tester $testname && wait && continue
-		[ "$1" == "quiet" ] && full_tester $testname > /dev/null && continue
+		modifier_set "mini" && minimalist_tester $testname && wait && continue
+		modifier_set "quiet" && full_tester $testname > /dev/null && continue
 		full_tester $testname
 	done
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
@@ -320,14 +435,14 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	rm -rf $logdir $logfile result1 result2
 	mkdir -p $logdir;
 	(
-		logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
+		mod=(); logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
 		[ -d $testdir ] || switch_mode "bash" > /dev/null
 		tester 2>&1 | cat > result2 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
 	local pid1=$!
 	(
-		logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
+		mod=(); logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
 		[ -d $testdir ] || switch_mode > /dev/null
 		tester 2>&1 | cat > result1 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
@@ -336,126 +451,340 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	# wait
 	loader $pid1 $pid2
 	local goodstuff=0
+	local skp=0
 	local n=1
 	for (( ; n<=$( <result1 grep "/// TEST" | wc -l ); n++ )) #-${#testarray[@]}
 	do
-		stat1=$(grep "TEST $n  OK" <result1 >/dev/null; echo $?)
-		stat2=$(grep "TEST $n  OK" <result2 >/dev/null; echo $?)
+		local stat1=$(grep "TEST $n  OK" <result1 >/dev/null; echo $?)
+		local stat2=$(grep "TEST $n  OK" <result2 >/dev/null; echo $?)
+		local skip=$(grep "TEST $n SKIP" <result1 >/dev/null; echo $?)
 		if [ $stat1 -eq 0 ] || [ $stat2 -eq 0 ]; then
 			((goodstuff++))
-			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
-			[ "$1" = "mini" ] && echo -ne "$GRN.$NC" > /dev/stderr && continue
-			echo -e "$GRN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" ) ///$NC" | tee -a $logfile
+			modifier_set "mini" && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
+			modifier_set "mini" && echo -ne "$GRN.$NC" > /dev/stderr && continue
+			echo -e "$GRN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" )  ///$NC" | tee -a $logfile
 		else
 			$(grep "TEST $n  KO" <result1 >>$logfile; grep "^$n:" <result1 >>$logfile; grep "^$n:" <result2 >>$logfile)
-			[ "$1" = "mini" ] && [ $(( $n%80 )) -eq 0 ] && echo ""
-			[ "$1" = "mini" ] && echo -ne "$RED.$NC" > /dev/stderr && continue
-			echo -e "$RED/// TEST $n  KO KO ///$NC"
+			modifier_set "mini" && [ $(( $n%80 )) -eq 0 ] && echo ""
+			[ $skip -eq 0 ] && modifier_set "mini" && echo -ne "$ORN.$NC" && let "++skp" && continue
+			[ $skip -eq 0 ] && echo -e "$RED/// TEST $n SKIP ///$NC" && let "++skp" && continue
+			modifier_set "mini" && echo -ne "$RED.$NC" > /dev/stderr && continue
+			echo -e "$RED/// TEST $n  KO KO  ///$NC"
 		fi
 	done
 	rm -f result1 result2
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
-	echo "$goodstuff tests out of $n are OK in at least one of normal or bash mode. Neat."
+	echo "$goodstuff tests out of $(($n-1-$skp)) are OK in at least one of normal or bash mode. Neat."
 }
 
-# add comp_val for valgrind stuff
-# add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
-# make nicer argument parsing with while loop and shift :)
-# while $# do
-case "$1" in 
+testdescarray=(
+	"General
+	.B syntaxic
+	tests for minishell."
+	".B Echo
+	builtin."
+	".B $
+	aka environment variable expansions."
+	"Builtin functions 
+	.B env, export
+	and
+	.B unset."
+	"Builtin functions
+	.B cd
+	&
+	.B pwd."
+	"Builtin function
+	.B exit."
+	"Various tests for pipes."
+	"Tricky stuff."
+	"Redirections and other < > >> shenanigans."
+	"Bonus part. Parentheses, && and || operators."
+	"Bonus part. Wildcard. Jack of all trades. Like me."
+)
 
-	"gen")		generate_test_expectancies $2; exit $?;;
-	"unite")	unite_tests $2; exit $?;;
-	"split")	split_tests $2; exit $?;;
-	"pack")		pack_tests; exit $?;;
-	"unpack")	unpack_tests; exit $?;;
-	"i" | "ignore")
-		shift
-		ignore_tests "$@"
-		;;
-	"n" | "notignore")
-		shift
-		notignore_tests "$@"
-		;;
-	"c" | "clean" | "fclean")
-		rm -rf $logdir* a b c bonjour hola hey pwd
-		[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
-		echo "All $1!"
-		exit 0
-		;;
-	"s" | "set")
-		switch_mode "$2"
-		exit $?
-		;;
-	"bo2")
-		best_of_2 "$2"
-		exit $?
-		;;
-	"r" | "run") tester;;
-	"m" | "mandatory")
-		testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe")
-		tester
-		;;
-	"b" | "bonus")
-		testarray=("parandor")
-		tester
-		;;
-	"o" | "only")
-		shift
-		for a in $@
-		do	[ $(ls $testdir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
-		done
-		testarray=("$@")
-		tester
-		;;
-	"quiet" | "mini")
-		tester $1
-		;;
-	"-h" | "--help" | "help" | "usage" | *)
-		echo
-		echo -e "/^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^ ^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^\\"
-		echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t|\tBy emis a.k.a. Ethan. With love."
-		echo -e "\\_ __ __ __ __ __ __ __ __ _ _ __ __ __ __ __ __ __ __ _/"
-		echo
-		echo -e "\tUsage -- modes:"
-		echo
-		echo " - [s]et	: prepare test files for normal mode."
-		echo "   [s]et bash	: generate test files for bash mode."
-		echo
-		echo " - [r]un	: run all tests this tester has. See test units."
-		echo
-		echo " - [m]andatory	: run all mandatory part tests."
-		echo
-		echo " - [b]onus	: run all bonus part tests."
-		echo
-		echo " - mini		: minimalism."
-		echo
-		echo " - quiet	: just the results. Error messages are only in $logfile."
-		echo
-		echo " - [o]nly	: run all test units specified after 'only' or 'o'."
-		echo
-		echo " - [i]gnore	: a more permanent alternative to 'only'. Specify a test unit and which test number to skip, or 'all' to skip the unit altogether."
-		echo
-		echo " - [n]otignore	: remove tests from ignore list."
-		echo
-		echo " - bo2		: Best Of 2; run normal and bash mode simultaneously. Useful to check which tests pass either, or fail both."
-		echo "   bo2 mini	: a minimalist, less overwhelming version of bo2."
-		echo
-		echo " - [c]lean	: a classic. Cleans up individual logs and other test-related files."
-		echo
-		echo " - fclean	: thorough cleaning. Deletes logfile and all generated/set test directories."
-		echo
-		echo -e "\tUsage -- test units:"
-		echo
-		for testname in ${testarray[@]}
-		do	printf " - %-8s	: \n\n" "$testname"
-		done
-		;;
-esac
-# shift
-# done
+# HOMEMADE MAN PAGE YUMMERS
+get_man(){
+man <(printf "%s\n" ".\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+.TH MINITESTER.SH 1 "APRIL 2023" Ethan "User Manuals"
+.SH NAME
+minitester.sh \- test your minishell, test it well.
+.SH SYNOPSIS
+.B ./minitester.sh option [ 
+.I testunit
+.B ] [testnb] ...
+.SH DESCRIPTION
+.B minitester.sh
+tests your minishell by giving it a plethora of commands
+and comparing its output with either 
+.BR normal
+or
+.BR bash
+mode's expected output, depending on which was set.
+.SH OPTIONS
+.SS Setup
+.P
+.B s, set [bash]
+.RS
+Prepare or generate test files for normal or bash mode.
+.SS Modes of operation
+.P
+.B r, run [modifier]
+.RS
+Run all
+.B test units
+this tester has. This is the
+.I default
+option, meaning you can replace it with any modifier. See
+.B examples
+for more info.
+.RE
+.P
+.B m, mandatory [modifier]
+.RS
+Run all mandatory part test units.
+.RE
+.P
+.B b, bonus [modifier]
+.RS
+Run all bonus part test units.
+.SS Modifiers
+.B bo2 [modifier]
+.RS
+Best Of 2; run
+.B normal
+and
+.B bash
+mode simultaneously. Useful to check which tests pass either, or fail both.
+.RE
+.P
+.B mini
+.RS
+Minimalism.
+.RE
+.P
+.B quiet
+.RS
+Just the results. Error messages are found in $logfile.
+.SS Filtering
+.P
+.B o, only 
+.I testunit1 testunit2
+.B ...
+.RS
+Run all test units specified after 
+.B only
+or
+.B o
+keyword.
+.RE
+.P
+.B i, ignore
+.I testunit
+.B [ 
+.I testnb
+.B ] ...
+.RS
+A more permanent alternative to
+.B only
+mode. Specify a
+.I test unit
+and which
+.I test number
+to skip, or keyword
+.I all
+to skip the unit altogether.
+.RE
+.P
+.B n, notignore
+.I testunit
+.B [ 
+.I testnb
+.B ] ...
+.RS
+Remove units/tests from ignore list.
+.RE
+.P
+.SS Cleanup
+.B c, clean
+.RS
+A classic. Cleans up individual logs and other test-related files.
+.RE
+.P
+.B fclean
+.RS
+Thorough cleaning. Deletes logfile and all generated/set test directories.
+.SS Info
+.B  man, usage, -h, --help, help, i'm lost, wtf, RTFM
+.RS
+You're reading it.
+.RE
+.P
+.B p, peek
+.I testunit
+.B [ 
+.I testnb
+.B ] ...
+.RS
+Have a peek at a test and what outputs it expects. Specify a
+.I test unit
+, one or many
+.I test number
+or keyword
+.I all
+to see all tests.
+.RE
+.P
+.SH FILES
+.I $logfile
+.RS
+The log file containing all test 
+.B results.
+.RE
+.I $logdir/
+.RS
+The directory containing all test logs.
+.RE
+.I $testfile
+.RS
+The test file in which each test is stored to be sent to minishell.
+.RE
+.I $testdir/
+.RS
+The directory containing all test files for whichever
+.B mode
+is
+.B set
+by user. Tests are fetched from this directory.
+Bo2 mode creates separate "$testdir"1 and "$testdir"2 directories.
+.RE
+.I $stadir/
+.RS
+The directory containing all test files for
+.B normal
+mode.
+.RE
+.I $pckdir/
+.RS
+The directory containing all test files for
+.B normal
+mode, but in less files, I.E. 1 file per test unit instead of 4.
+.RE
+.I $ignfile
+.RS
+The
+.B ignore
+file in which the ignored test list is stored.
+.RE
+.SH TEST UNITS
+"$(for (( i;i<${#testarray[@]};i++ ))
+do	printf "\n.I %s \n.RS \n %s \n.RE \n" "${testarray[i]}" "${testdescarray[i]}";
+done)"
+.SH EXAMPLES
+Here is where all your copypasting needs shall be fulfilled.
+ 
+For starters, run
+.B ./minitester.sh set
+or 
+.B ./minitester.sh set bash
+to set a mode.
+ 
+Then, if you are bold enough to try all tests, you can run 
+.B ./minitester.sh run
+or 
+.B ./minitester.sh r
+for short.
+
+Granted, this approach might overwhelm your terminal for a bit.
+How about something more pallatable, then ?
+ 
+As said in the
+.B options
+section,
+.B run
+is the
+.I default
+behaviour of the tester, and therefore a touch of minimalism will yield a lovely
+.B ./minitester mini
+command.
+ 
+If, say, you wish to use the
+.B bo2 (Best Of Two)
+mode, with minimalism in mind again, and only on the bonus part units,
+.B ./minitester b mini bo2
+or
+.B ./minitester mini b bo2
+or
+.B ./minitester bo2 mini b
+and so on are equivalent.
+ 
+However, the
+.B only
+filter does not allow any other modifier after it, it can
+.B only
+be followed by
+.I test units
+by design :
+.B ./minitester mini bo2 only syntax echo envvar
+or
+.B ./minitester quiet o parandor echo tricky
+are valid, yet
+.B ./minitester o mini man prout
+is bound to fail. If
+.B mandatory
+or
+.B bonus
+part units are specified before the
+.B only
+keyword, they shall be overturned by only's specified units.
+ 
+Here is a random example for each option. My treat.
+.RS
+.IP set 12
+.B ./minitester.sh s bash
+.IP run
+.B ./minitester.sh
+.IP mandatory
+.B ./minitester.sh m mini
+.IP bonus
+.B ./minitester.sh bonus quiet
+.IP bo2
+.B ./minitester.sh bo2 mini o echo
+.IP mini
+.B ./minitester.sh mini bo2 o envvar parandor
+.IP quiet
+.B ./minitester.sh quiet mandatory
+.IP only
+.B ./minitester.sh only dollar wildcard tricky
+.IP ignore
+.B ./minitester.sh i wildcard all
+.IP notignore
+.B ./minitester.sh n wildcard all
+.IP clean
+.B ./minitester.sh c
+.IP fclean
+.B ./minitester.sh fclean
+.IP man
+.B ./minitester.sh wtf
+.IP peek
+.B ./minitester.sh peek echo 1 2 3 7 9 32
+.RE
+
+Go crazy, go stupid. I'm not your dad. Best of all, good luck on your debugging.
+.SH BUGS
+Please keep in mind this is my third ever bash script,
+I am still learning, and would love any feedback or bug report.
+.SH AUTHOR
+Ethan Mis <https://github.com/ethanolmethanol>
+.SH \"SEE ALSO\"
+.BR push_swap42tester,
+.BR philosophers42tester")
+}
+
+main "$@"
 
 # if [ -n "$1" ] && [ "$1" = "gen" ] && [ -n "$2" ]; then generate_test_expectancies $2; exit $?; fi
 # if [ -n "$1" ] && [ "$1" = "unite" ] && [ -n "$2" ]; then unite_tests $2; exit $?; fi

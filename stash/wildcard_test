@@ -1,0 +1,6 @@
+ls *
+ls *.*
+ls *.hola
+cat M*le
+cat M*ee
+cat Make*file
