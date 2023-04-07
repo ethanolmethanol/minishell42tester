@@ -8,6 +8,7 @@ gendir=gen
 stadir=stash
 pckdir=".pack"
 ignfile=".testignore"
+savedir=save
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "parandor" "wildcard")
 # testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 mod=()
@@ -29,6 +30,7 @@ main(){
 		"split")	split_tests $2; exit $?;;
 		"pack")		pack_tests; exit $?;;
 		"unpack")	unpack_tests; exit $?;;
+		"save")		save_log "$2"; exit $?;;
 		"p" | "peek")
 			shift
 			peek_test "$@";
@@ -54,10 +56,9 @@ main(){
 			switch_mode "$2"
 			exit $?
 			;;
-		"bo2")
-			mod+=("$1")
+		"r" | "run" | "ocd")
+			testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 			;;
-		"r" | "run");;
 		"m" | "mandatory")
 			testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
 			;;
@@ -72,7 +73,7 @@ main(){
 			testarray=("$@")
 			break
 			;;
-		"quiet" | "mini")
+		"bo2" | "quiet" | "mini" | "val" | "noskip")
 			mod+=("$1")
 			;;
 		"-h" | "--help" | "help" | "usage" | "man" | "i'm lost" | "wtf" | "RTFM")
@@ -128,8 +129,36 @@ comp_out(){ # $1 testnb  $2 expected out  $3 output type
 	return 0
 }
 
+valbase=("--suppressions=ignore_rl_leaks.supp")
+valmedi=("--leak-check=full" "--show-leak-kinds=all" "--track-origins=yes")
+valhard=("--track-fds=yes")
+# faster val ? export MALLOC_CHECK_=2
+comp_val(){
+	local ok=0
+	valargs=(${valbase[@]} ${valmedi[@]}) # ${valhard[@]}
+	r=$(valgrind --log-file=$logdir/val_$1 ${valargs[@]} ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
+	comp_stat $1 $2 $r; let "ok+=$?"
+	comp_out "$1" "$3" "out"; let "ok+=$?"
+	comp_out "$1" "$4" "err"; let "ok+=$?"
+	sed -i "s/==[[:digit:]]\+== //g" $logdir/val_$1
+	local leak=$(grep -n "LEAK SUMMARY" $logdir/val_$1 | sed 's@\([0-9]\+\).*@\1@')
+	for (( l=$leak+1;l<$leak+5;l++ ))
+	do
+		local line=$(get_nth_line $logdir/val_$1 $l)
+		if [ $(echo $line | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') -ne 0 ];then
+			echo "$1: Valgrind: leak found $line"; let "++ok"
+		fi
+	done
+	return $ok
+}
+
+# val_test(){
+
+# }
+
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	local ok=0
+	modifier_set "val" && { comp_val "$1" "$2" "$3" "$4"; return $?; }
 	r=$(./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
@@ -145,11 +174,11 @@ peek_test(){
 	[ ! -d "$testdir" ] && echo "No test directory found. Set a mode, and try again." && return 1
 	[ -z "$(grep "$1"_ <(ls "$testdir"))" ] && echo "Invalid test unit name. Couldn't find." && return 1
 	[ $# -eq 1 ] && echo "Specify at least one test to peek." && return 1
-	unit="$1"
+	local unit="$1"
 	shift
-	lines=("$@")
+	local lines=("$@")
 	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$testdir/$unit"_test | wc -l)")")
-	for line in $lines
+	for line in "${lines[@]}"
 	do
 		[ "$line" -eq "$line" ] || echo "Specified test number '$line' is, in fact, not a number. Ouch."; [ ! $? ] && return 1
 		[ $line -le 0 ] && echo "Specified test number '$line' is, in fact, too small. Ouch." && return 1
@@ -255,8 +284,17 @@ notignore_tests(){
 
 is_ignored(){
 	[ ! -f "$ignfile" ] && return 1
+	modifier_set "noskip" && return 1
 	[ -n "$(grep "$1" "$ignfile" | grep "; $2 ;")" ] && return 0
 	return 1
+}
+
+save_log(){
+	mkdir -p $savedir
+	local dttm="$1"
+	[ -z "$dttm" ] && dttm=$(date +"log_%m_%d_%Y@%Hh%Mm%Ss.txt")
+	cp $logfile $savedir/$dttm
+	echo "Saved! :D"
 }
 
 # add_test(){
@@ -404,7 +442,8 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 		modifier_set "quiet" && full_tester $testname > /dev/null && continue
 		full_tester $testname
 	done
-	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}LEAKS${NC} DETECTED! CHECK LOGFILE! X("
 	echo -e "Your minishell succeeded $GRN$succ$NC out of $(($testnb-$ign)) tests! :D" > /dev/stderr
 }
 
@@ -467,7 +506,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 			$(grep "TEST $n  KO" <result1 >>$logfile; grep "^$n:" <result1 >>$logfile; grep "^$n:" <result2 >>$logfile)
 			modifier_set "mini" && [ $(( $n%80 )) -eq 0 ] && echo ""
 			[ $skip -eq 0 ] && modifier_set "mini" && echo -ne "$ORN.$NC" && let "++skp" && continue
-			[ $skip -eq 0 ] && echo -e "$RED/// TEST $n SKIP ///$NC" && let "++skp" && continue
+			[ $skip -eq 0 ] && echo -e "$ORN/// TEST $n  SK IP  ///$NC" && let "++skp" && continue
 			modifier_set "mini" && echo -ne "$RED.$NC" > /dev/stderr && continue
 			echo -e "$RED/// TEST $n  KO KO  ///$NC"
 		fi
@@ -475,7 +514,8 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	rm -f result1 result2
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
-	[ -n "$(grep "SEGV" <$logfile)" ] && echo "SEGFAULT DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}LEAKS${NC} DETECTED! CHECK LOGFILE! X("
 	echo "$goodstuff tests out of $(($n-1-$skp)) are OK in at least one of normal or bash mode. Neat."
 }
 
@@ -530,17 +570,13 @@ mode's expected output, depending on which was set.
 .B s, set [bash]
 .RS
 Prepare or generate test files for normal or bash mode.
-.SS Modes of operation
+.SS Test unit batches
 .P
-.B r, run [modifier]
+.B r, run, ocd [modifier]
 .RS
 Run all
 .B test units
-this tester has. This is the
-.I default
-option, meaning you can replace it with any modifier. See
-.B examples
-for more info.
+this tester has, in increasing number of tests order.
 .RE
 .P
 .B m, mandatory [modifier]
@@ -569,6 +605,22 @@ Minimalism.
 .B quiet
 .RS
 Just the results. Error messages are found in $logfile.
+.RE
+.P
+.B val
+.RS
+Valgrind. Slows down the tester considerably.
+Have yourself a coffee in the meantime.
+Recommend using with
+.B noskip
+as the ignored tests may have leaks you're unaware of.
+.RE
+.P
+.B noskip
+.RS
+Run without skipping any unit or test from
+.B ignore
+list.
 .SS Filtering
 .P
 .B o, only 
@@ -594,9 +646,13 @@ mode. Specify a
 .I test unit
 and which
 .I test number
-to skip, or keyword
+to
+.B skip
+or keyword
 .I all
-to skip the unit altogether.
+to
+.B skip
+the unit altogether.
 .RE
 .P
 .B n, notignore
@@ -606,8 +662,6 @@ to skip the unit altogether.
 .B ] ...
 .RS
 Remove units/tests from ignore list.
-.RE
-.P
 .SS Cleanup
 .B c, clean
 .RS
@@ -618,7 +672,7 @@ A classic. Cleans up individual logs and other test-related files.
 .RS
 Thorough cleaning. Deletes logfile and all generated/set test directories.
 .SS Info
-.B  man, usage, -h, --help, help, i'm lost, wtf, RTFM
+.B man, usage, -h, --help, help, i'm lost, wtf, RTFM
 .RS
 You're reading it.
 .RE
@@ -638,11 +692,37 @@ or keyword
 to see all tests.
 .RE
 .P
+.B save [
+.I logname
+.B ]
+.RS
+Save your
+.I $logfile
+in the
+.I $savedir
+directory. Specify a name after
+.B save
+keyword, default name will
+look like
+.B log_DD_MM_YYYY@HHhMMmSSs.txt
+otherwise.
+.RE
+.P
 .SH FILES
 .I $logfile
 .RS
 The log file containing all test 
 .B results.
+.RE
+.I $savedir/
+.RS
+This directory is never deleted by
+.B clean
+or
+.B fclean
+and can allow you to keep logfiles with the
+.B save
+utilitary.
 .RE
 .I $logdir/
 .RS
@@ -701,13 +781,7 @@ for short.
 Granted, this approach might overwhelm your terminal for a bit.
 How about something more pallatable, then ?
  
-As said in the
-.B options
-section,
-.B run
-is the
-.I default
-behaviour of the tester, and therefore a touch of minimalism will yield a lovely
+A touch of minimalism will yield a lovely
 .B ./minitester mini
 command.
  
@@ -746,7 +820,7 @@ Here is a random example for each option. My treat.
 .IP set 12
 .B ./minitester.sh s bash
 .IP run
-.B ./minitester.sh
+.B ./minitester.sh ocd
 .IP mandatory
 .B ./minitester.sh m mini
 .IP bonus
@@ -757,6 +831,10 @@ Here is a random example for each option. My treat.
 .B ./minitester.sh mini bo2 o envvar parandor
 .IP quiet
 .B ./minitester.sh quiet mandatory
+.IP val
+.B ./minitester.sh val m
+.IP noskip
+.B ./minitester.sh noskip mini val
 .IP only
 .B ./minitester.sh only dollar wildcard tricky
 .IP ignore
@@ -771,12 +849,18 @@ Here is a random example for each option. My treat.
 .B ./minitester.sh wtf
 .IP peek
 .B ./minitester.sh peek echo 1 2 3 7 9 32
+.IP save
+.B ./minitester.sh save veryusefullogfilename.txt
 .RE
 
 Go crazy, go stupid. I'm not your dad. Best of all, good luck on your debugging.
 .SH BUGS
 Please keep in mind this is my third ever bash script,
 I am still learning, and would love any feedback or bug report.
+ 
+Legend says using run and man in that order
+can cause weird stuff to happen to test units section.
+Or any test unit specifier before man for that matter.
 .SH AUTHOR
 Ethan Mis <https://github.com/ethanolmethanol>
 .SH \"SEE ALSO\"
