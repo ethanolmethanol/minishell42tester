@@ -129,26 +129,38 @@ comp_out(){ # $1 testnb  $2 expected out  $3 output type
 	return 0
 }
 
+
+val_check_for(){ # $1 testnb  $2 check keyword
+	local check=$(grep "$2" $logdir/val_$1)
+	[ -n "$check" ] && echo "$1: Valgrind: $2 : $(echo "$check" | head -1)" && return 1
+	return 0
+}
+
 valbase=("--suppressions=ignore_rl_leaks.supp")
 valmedi=("--leak-check=full" "--show-leak-kinds=all" "--track-origins=yes")
-valhard=("--track-fds=yes")
+valhard=("--track-fds=yes") #"--trace-children=yes"
 # faster val ? export MALLOC_CHECK_=2
 comp_val(){
 	local ok=0
-	valargs=(${valbase[@]} ${valmedi[@]}) # ${valhard[@]}
+	valargs=(${valbase[@]} ${valmedi[@]} ${valhard[@]})
 	r=$(valgrind --log-file=$logdir/val_$1 ${valargs[@]} ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
 	sed -i "s/==[[:digit:]]\+== //g" $logdir/val_$1
-	local leak=$(grep -n "LEAK SUMMARY" $logdir/val_$1 | sed 's@\([0-9]\+\).*@\1@')
+	local leak=$(grep -n "LEAK SUMMARY" $logdir/val_$1 | head -1 | sed 's@\([0-9]\+\).*@\1@')
 	for (( l=$leak+1;l<$leak+5;l++ ))
 	do
 		local line=$(get_nth_line $logdir/val_$1 $l)
 		if [ $(echo $line | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') -ne 0 ];then
-			echo "$1: Valgrind: leak found $line"; let "++ok"
+			echo "$1: Valgrind: memory leak: ${line##*( )}"; let "++ok"
 		fi
 	done
+	for keyword in " read" " write" "uninitialised" " free()"
+	do val_check_for $1 "$keyword"; let "ok+=$?"
+	done
+	local fds=$(grep -A 1 "^Open file descriptor " $logdir/val_$1)
+	[ -n "$(grep "open" <(echo "$fds"))" ] && echo "$1: Valgrind: track fd: $(echo "$fds" | head -1)" && let "++ok"
 	return $ok
 }
 
@@ -443,7 +455,7 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 		full_tester $testname
 	done
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
-	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}LEAKS${NC} DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}VALGRIND ERRORS${NC} DETECTED! CHECK LOGFILE! X("
 	echo -e "Your minishell succeeded $GRN$succ$NC out of $(($testnb-$ign)) tests! :D" > /dev/stderr
 }
 
@@ -515,7 +527,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
-	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}LEAKS${NC} DETECTED! CHECK LOGFILE! X("
+	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}VALGRIND ERRORS${NC} DETECTED! CHECK LOGFILE! X("
 	echo "$goodstuff tests out of $(($n-1-$skp)) are OK in at least one of normal or bash mode. Neat."
 }
 
