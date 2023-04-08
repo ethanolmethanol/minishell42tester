@@ -19,6 +19,8 @@ ORN='\033[38;2;255;165;0m'
 NC='\033[0m'
 
 # add comp_val for valgrind stuff
+# add 'cleanup tests' that delete any created files from prior tests,
+# not to interfere with ls or other tests involving present files
 # add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
 # make nicer argument parsing with while loop and shift :)
 main(){
@@ -129,7 +131,6 @@ comp_out(){ # $1 testnb  $2 expected out  $3 output type
 	return 0
 }
 
-
 val_check_for(){ # $1 testnb  $2 check keyword
 	local check=$(grep "$2" $logdir/val_$1)
 	[ -n "$check" ] && echo "$1: Valgrind: $2 : $(echo "$check" | head -1)" && return 1
@@ -164,9 +165,12 @@ comp_val(){
 	return $ok
 }
 
-# val_test(){
-
-# }
+val_error(){
+	modifier_set "val" || return 0
+	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}VALGRIND ERRORS${NC} DETECTED! CHECK LOGFILE! X(" && return 1
+	echo -e "${GRN}No valgrind error detected.${NC} All good :)"
+	return 0
+}
 
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	local ok=0
@@ -455,45 +459,56 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 		full_tester $testname
 	done
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
-	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}VALGRIND ERRORS${NC} DETECTED! CHECK LOGFILE! X("
+	val_error
 	echo -e "Your minishell succeeded $GRN$succ$NC out of $(($testnb-$ign)) tests! :D" > /dev/stderr
 }
 
 loader(){
 	local load=(
 		"~~~~~~~~~~~~~~~~~~~~~~~~~"
-		"/^\\_/^\\_/^\\_/^\\_/^\\_/^\\_/"
-		".:*~*:._.:*~*:._.:*~*:._."
-		"✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏"
+		"m~i~n~i~s~h~e~l~l~t~e~s~t"
 		"▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰"
-		"•:•:•:•:•:•☾☼☽•:•.•:•.•:•"
+		" MINI TESTER MINI TESTER "
 		"═════════════════════════"
+		"m~i~n~i~t~e~s~t~e~r~.~s~h"
+		"/^\\_/^\\_/^\\_/^\\_/^\\_/^\\_/"
+		"MINISHELLTESTER BY EMIS<3"
+		".:*~*:._.:*~*:._.:*~*:._."
+		"minitester+val=coffeetime"
+		"✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏"
+		"Minishell is tricky,     "
+		"•:•:•:•:•:•☾☼☽•:•.•:•.•:•"
+		"This tester is lovely.   "
 		"· ·─────── ·𖥸· ───────· ·"
+		"Roses are red,           "
 		"•────────•°•❀•°•────────•"
+		"Violets are blue,        "
 		"•☽──────✧˖°˖☆˖°˖✧──────☾•"
+		"RTFM or I'll find you >:)"
 		"══════════ ⋆★⋆ ══════════"
 	)
 	local a=0
 	local b=0
 	echo
 	while $(kill -0 $@ 2> /dev/null)
-	do printf "\rLoading ${load[(($b%${#load[@]}))]::((a%50))} $b "; let "a++"; let "b=a/50"; sleep .025
+	do printf "\rLoading... ${load[(($b%${#load[@]}))]::((a%50))} $b "; let "a++"; let "b=a/50"; sleep .025
 	done
 	echo; echo "All done !"
 }
 
 best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	rm -rf $logdir $logfile result1 result2
+	local tmpmod=(); for m in "${mod[@]}"; do [ "$m" != "mini" ] && [ "$m" != "quiet" ] && tmpmod+=("$m"); done
 	mkdir -p $logdir;
 	(
-		mod=(); logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
+		mod=("${tmpmod[@]}"); logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
 		[ -d $testdir ] || switch_mode "bash" > /dev/null
 		tester 2>&1 | cat > result2 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
 	local pid1=$!
 	(
-		mod=(); logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
+		mod=("${tmpmod[@]}"); logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
 		[ -d $testdir ] || switch_mode > /dev/null
 		tester 2>&1 | cat > result1 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
@@ -527,7 +542,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	[ "$1" = "mini" ] && echo ""
 	echo -e "\nDone! :D"
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
-	[ -n "$(grep "Valgrind:" <$logfile)" ] && echo -e "${RED}VALGRIND ERRORS${NC} DETECTED! CHECK LOGFILE! X("
+	val_error
 	echo "$goodstuff tests out of $(($n-1-$skp)) are OK in at least one of normal or bash mode. Neat."
 }
 

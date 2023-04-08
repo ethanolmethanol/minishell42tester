@@ -1,4 +1,1 @@
-ls -z || (cd ../../..&&pwd)
-
-
-pwd
+$LESS$VAR
