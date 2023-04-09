@@ -56,15 +56,15 @@ vietdu91$USERvietdu91$USERtestvietdu91☃
 ☃
 ☃
 ☃
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃
+minitester.sh☃
 *☃
-Docs Dockers Drawings☃
+minitester.sh☃
 *Z☃
-crashtest.c test.c hola☃
-crashtest.c test.c☃
+logfile.txt hola☃
+logfile.txt☃
 ☃
-hola*hola crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃
+hola*hola☃
+minitester.sh☃
 /mnt/nfs/homes/emis☃
 ☃
 $☃
@@ -97,12 +97,12 @@ hola☃
 hola'☃
 ☃
 'hola'☃
-""hola""☃
-ho""l""a☃
+"hola"☃
+ho"l"a☃
 hola☃
 hola''''''''''☃
 hola☃
-hola""""""""""""""""""""☃
+hola""""""""""☃
 ☃
 ☃
 hola     $☃

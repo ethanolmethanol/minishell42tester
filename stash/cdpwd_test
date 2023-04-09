@@ -60,7 +60,7 @@ cd ~/ | echo $?☃pwd
 cd *
 cd *
 cd *
-mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃cd ..
+rm a☃mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃cd ..
 mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃pwd
 mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃echo $PWD☃echo $OLDPWD
 mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃cd☃echo $PWD☃echo $OLDPWD

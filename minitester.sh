@@ -12,6 +12,7 @@ savedir=save
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "parandor" "wildcard")
 # testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 mod=()
+env=""
 prompt="minishell"
 RED='\033[0;31m'
 GRN='\033[0;32m'
@@ -75,7 +76,8 @@ main(){
 			testarray=("$@")
 			break
 			;;
-		"bo2" | "quiet" | "mini" | "val" | "noskip")
+		"bo2" | "quiet" | "mini" | "val" | "noskip" | "noenv")
+			[ "$1" = "noenv" ] && env="env -i"
 			mod+=("$1")
 			;;
 		"-h" | "--help" | "help" | "usage" | "man" | "i'm lost" | "wtf" | "RTFM")
@@ -144,7 +146,7 @@ valhard=("--track-fds=yes") #"--trace-children=yes"
 comp_val(){
 	local ok=0
 	valargs=(${valbase[@]} ${valmedi[@]} ${valhard[@]})
-	r=$(valgrind --log-file=$logdir/val_$1 ${valargs[@]} ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
+	r=$($env valgrind --log-file=$logdir/val_$1 ${valargs[@]} ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
@@ -175,7 +177,7 @@ val_error(){
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	local ok=0
 	modifier_set "val" && { comp_val "$1" "$2" "$3" "$4"; return $?; }
-	r=$(./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
+	r=$($env ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
@@ -339,7 +341,7 @@ generate_test_expectancies(){
 		echo "unset command_not_found_handle" > "/tmp/gentest/$1"
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' >> "/tmp/gentest/$1"
 		fullnb=$(printf "%03d" $test) # Without leading zeros, ls takes the files 0 then 1 then 10 then 100 then 101 ... etc
-		s=$($shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
+		s=$($env $shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		# s=$(bash -c "$(cat "/tmp/gentest/$1")" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		echo "$s" > "/tmp/gentest/stat/"$1"_stat_"$fullnb""
 	done
@@ -648,6 +650,15 @@ as the ignored tests may have leaks you're unaware of.
 Run without skipping any unit or test from
 .B ignore
 list.
+.RE
+.P
+.B noenv
+.RS
+Run with
+.B env -i
+aka
+.B empty env
+variable. Useful to check for leaks with missing/unset env variables.
 .SS Filtering
 .P
 .B o, only 
@@ -860,6 +871,8 @@ Here is a random example for each option. My treat.
 .B ./minitester.sh quiet mandatory
 .IP val
 .B ./minitester.sh val m
+.IP noenv
+.B ./minitester.sh noenv noskip val o dollar envvar
 .IP noskip
 .B ./minitester.sh noskip mini val
 .IP only

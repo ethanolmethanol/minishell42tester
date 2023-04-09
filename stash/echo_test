@@ -58,7 +58,7 @@ EechoE
 |echo -n hola
 echo *
 echo '*'
-echo D*
+echo minit*
 echo *Z
 echo *t hola
 echo *t

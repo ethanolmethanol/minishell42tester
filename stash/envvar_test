@@ -60,51 +60,51 @@ export HOLA=bon&jour
 export HOLA=bon@jour☃env
 export HOLA=bon;jour☃env
 export HOLA=bon!jour
-export HOLA=bon""jour""☃env
+export HOLA=bon"jour"☃env
 export HOLA$USER=bonjour☃env
 export HOLA=bonjour=casse-toi☃echo $HOLA
-export ""HOLA=bonjour""=casse-toi☃echo $HOLA
+export "HOLA=bonjour"=casse-toi☃echo $HOLA
 export HOLA=bonjour☃export BYE=casse-toi☃echo $HOLA et $BYE
 export HOLA=bonjour BYE=casse-toi☃echo $HOLA et $BYE
 export $HOLA=bonjour☃env
-export HOLA=""bonjour      ""  ☃echo $HOLA | cat -e
-export HOLA=""   -n bonjour   ""  ☃echo $HOLA
-export HOLA=""bonjour   ""/☃echo $HOLA
-export HOLA='""'☃echo "" $HOLA "" | cat -e
+export HOLA="bonjour      "  ☃echo $HOLA | cat -e
+export HOLA="   -n bonjour   "  ☃echo $HOLA
+export HOLA="bonjour   "/☃echo $HOLA
+export HOLA='"'☃echo " $HOLA " | cat -e
 export HOLA=at☃c$HOLA Makefile
-export """" HOLA=bonjour☃env
-export HOLA=""cat Makefile | grep NAME""  ☃echo $HOLA
+export "" HOLA=bonjour☃env
+export HOLA="cat Makefile | grep NAME"  ☃echo $HOLA
 export HOLA=hey ☃echo $HOLA$HOLA$HOLA=hey$HOLA
-export HOLA=""  bonjour  hey  ""  ☃echo $HOLA | cat -e
-export HOLA=""  bonjour  hey  ""  ☃echo """"""$HOLA"""""" | cat -e
-export HOLA=""  bonjour  hey  ""  ☃echo wesh""$HOLA"" | cat -e
-export HOLA=""  bonjour  hey  ""  ☃echo wesh""""$HOLA.
-export HOLA=""  bonjour  hey  ""  ☃echo wesh$""""HOLA.
-export HOLA=""  bonjour  hey  ""  ☃echo wesh$""HOLA HOLA"".
-export HOLA=bonjour☃export HOLA="" hola et $HOLA""☃echo $HOLA
+export HOLA="  bonjour  hey  "  ☃echo $HOLA | cat -e
+export HOLA="  bonjour  hey  "  ☃echo """$HOLA""" | cat -e
+export HOLA="  bonjour  hey  "  ☃echo wesh"$HOLA" | cat -e
+export HOLA="  bonjour  hey  "  ☃echo wesh""$HOLA.
+export HOLA="  bonjour  hey  "  ☃echo wesh$""HOLA.
+export HOLA="  bonjour  hey  "  ☃echo wesh$"HOLA HOLA".
+export HOLA=bonjour☃export HOLA=" hola et $HOLA"☃echo $HOLA
 export HOLA=bonjour☃export HOLA=' hola et $HOLA'☃echo $HOLA
-export HOLA=bonjour☃export HOLA="" hola et $HOLA""$HOLA☃echo $HOLA
-export HOLA=""ls        -l    - a""☃echo $HOLA
-export HOLA=""s -la"" ☃l$HOLA
-export HOLA=""s -la"" ☃l""$HOLA""
-export HOLA=""s -la"" ☃l'$HOLA'
-export HOLA=""l"" ☃$HOLAs
-export HOLA=""l"" ☃""$HOLA""s
+export HOLA=bonjour☃export HOLA=" hola et $HOLA"$HOLA☃echo $HOLA
+export HOLA="ls        -l    - a"☃echo $HOLA
+export HOLA="s -la" ☃l$HOLA
+export HOLA="s -la" ☃l""$HOLA""
+export HOLA="s -la" ☃l'$HOLA'
+export HOLA="l" ☃$HOLAs
+export HOLA="l" ☃"$HOLA"s
 export HOL=A=bonjour☃env
-export HOLA=""l"" ☃'$HOLA's
-export HOL=A=""""☃env
+export HOLA="l" ☃'$HOLA's
+export HOL=A=""☃env
 export TE+S=T☃env
 export ""=""
 export ''=''
 export "="="="
 export '='='='
-export HOLA=p☃export BYE=w☃$HOLA""BYE""d
-export HOLA=p☃export BYE=w☃""$HOLA""'$BYE'd
-export HOLA=p☃export BYE=w☃""$HOLA""""$BYE""d
-export HOLA=p☃export BYE=w☃$""HOLA""$""BYE""d
+export HOLA=p☃export BYE=w☃$HOLA"BYE"d
+export HOLA=p☃export BYE=w☃"$HOLA"'$BYE'd
+export HOLA=p☃export BYE=w☃"$HOLA""$BYE"d
+export HOLA=p☃export BYE=w☃$"HOLA"$"BYE"d
 export HOLA=p☃export BYE=w☃$'HOLA'$'BYE'd
 export HOLA=-n☃""echo $HOLA"" hey
-export A=1 B=2 C=3 D=4 E=5 F=6 G=7 H=8☃echo ""$A'$B""'$C""$D'$E'""$F'""'$G'$H""
+export A=1 B=2 C=3 D=4 E=5 F=6 G=7 H=8☃echo "$A'$B"'$C"$D'$E'"$F'"'$G'$H"
 export HOLA=bonjour☃env☃unset HOLA☃env
 export HOLA=bonjour☃env☃unset HOLA☃unset HOLA☃env
 unset PATH☃echo $PATH

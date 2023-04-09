@@ -4,7 +4,7 @@ ls hola
 ./minishell
 env | grep SHLVL☃./minishell☃env | grep SHLVL☃exit☃env | grep SHLVL
 touch hola☃./hola
-env|"wc" -l
+rm hola☃env|"wc" -l
 env|"wc "-l
 expr 1 + 1
 expr $? + $?

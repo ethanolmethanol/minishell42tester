@@ -3,7 +3,7 @@ ls | exit
 ls | exit 42
 exit | ls
 echo hola > bonjour☃exit | cat -e bonjour
-echo hola > bonjour☃cat -e bonjour | exit
+echo hola > bonjour☃cat -e bonjour | exit☃rm bonjour
 echo | echo
 echo hola | echo que tal
 pwd | echo hola
@@ -21,8 +21,8 @@ ifconfig | grep hola
 whoami | grep $USER
 whoami | grep $USER > /tmp/bonjour☃cat /tmp/bonjour
 whoami | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
-whereis ls | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
-ls | hola
+whereis ls | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour☃rm /tmp/bonjour
+rm hola☃ls | hola
 ls | ls hola
 ls | ls | hola
 ls | hola | ls
@@ -49,8 +49,8 @@ export HOLA=bonjour | cat -e | cat -e
 unset HOLA | cat -e
 export HOLA | echo hola☃env | grep PROUT
 export | echo hola
-sleep 3 | sleep 3
-time sleep 3 | sleep 3
-sleep 3 | exit
-exit | sleep 3
-echo hola > a☃>>b echo que tal☃cat a | <b cat | cat > c | cat
+sleep 1 | sleep 1
+time sleep 1 | sleep 1
+sleep 1 | exit
+exit | sleep 1
+echo hola > a☃>>b echo que tal☃cat a | <b cat | cat > c | cat ☃rm a b c
