@@ -11,6 +11,7 @@ ignfile=".testignore"
 savedir=save
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "parandor" "wildcard")
 # testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+minishell="./minishell"
 mod=()
 env=""
 prompt="minishell"
@@ -25,6 +26,7 @@ NC='\033[0m'
 # add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
 # make nicer argument parsing with while loop and shift :)
 main(){
+	local mode=""
 	while [ $# -ne 0 ]
 	do
 	case "$1" in 
@@ -36,7 +38,7 @@ main(){
 		"save")		save_log "$2"; exit $?;;
 		"p" | "peek")
 			shift
-			peek_test "$@";
+			peek_test "$mode" "$@";
 			exit $?
 			;;
 		"i" | "ignore")
@@ -51,7 +53,7 @@ main(){
 			;;
 		"c" | "clean" | "fclean")
 			rm -rf $logdir* a b c bonjour hola hey pwd
-			[ "$1" = "fclean" ] && rm -rf $logfile $testdir*
+			[ "$1" = "fclean" ] && rm -rf $logfile $testdir* ?*$stadir
 			echo "All $1!"
 			exit 0
 			;;
@@ -71,7 +73,7 @@ main(){
 		"o" | "only")
 			shift
 			for a in $@
-			do	[ $(ls $testdir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
+			do	[ $(ls $mode$stadir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
 			done
 			testarray=("$@")
 			break
@@ -85,6 +87,8 @@ main(){
 			exit $?
 			;;
 		*)
+		[ -d "$1$stadir" ] && mode="$1" && shift && continue
+		is_shell "$1" && echo "Need to set bash if you wanna use bash mode" && exit 1
 		echo "Whoops! Not a valid argument. Try 'man' if you're lost."
 		exit 1
 		;;
@@ -97,7 +101,7 @@ main(){
 	# echo "mod mini $(modifier_set "mini"; echo $?)"
 	# echo "mod bo2 $(modifier_set "bo2"; echo $?)"
 	modifier_set "bo2" && best_of_2 && exit $?
-	tester
+	tester $mode
 	exit $?
 }
 
@@ -142,11 +146,10 @@ val_check_for(){ # $1 testnb  $2 check keyword
 valbase=("--suppressions=ignore_rl_leaks.supp")
 valmedi=("--leak-check=full" "--show-leak-kinds=all" "--track-origins=yes")
 valhard=("--track-fds=yes") #"--trace-children=yes"
-# faster val ? export MALLOC_CHECK_=2
 comp_val(){
 	local ok=0
 	valargs=(${valbase[@]} ${valmedi[@]} ${valhard[@]})
-	r=$($env valgrind --log-file=$logdir/val_$1 ${valargs[@]} ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
+	r=$($env valgrind --log-file=$logdir/val_$1 ${valargs[@]} $minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
@@ -177,7 +180,7 @@ val_error(){
 comp_test(){ # args: [1]test number, [2]expected return status, [3]expected stdout, [4]expected stderr
 	local ok=0
 	modifier_set "val" && { comp_val "$1" "$2" "$3" "$4"; return $?; }
-	r=$($env ./minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
+	r=$($env $minishell <"$testfile" 1> $logdir/out_$1 2> $logdir/err_$1; echo $?)
 	comp_stat $1 $2 $r; let "ok+=$?"
 	comp_out "$1" "$3" "out"; let "ok+=$?"
 	comp_out "$1" "$4" "err"; let "ok+=$?"
@@ -189,26 +192,28 @@ get_nth_line(){ # $1 is file  $2 is line nb
 }
 
 peek_test(){
-	[ ! -d "$testdir" ] && echo "No test directory found. Set a mode, and try again." && return 1
-	[ -z "$(grep "$1"_ <(ls "$testdir"))" ] && echo "Invalid test unit name. Couldn't find." && return 1
+	local mode="$1";
+	[ ! -d "$mode$stadir" ] && echo "No stash directory found. Set a mode, and try again." && return 1
+	shift
+	[ -z "$(grep "$1"_ <(ls "$mode$stadir"))" ] && echo "Invalid test unit name. Couldn't find." && return 1
 	[ $# -eq 1 ] && echo "Specify at least one test to peek." && return 1
 	local unit="$1"
 	shift
 	local lines=("$@")
-	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$testdir/$unit"_test | wc -l)")")
+	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$mode$stadir/$unit"_test | wc -l)")")
 	for line in "${lines[@]}"
 	do
 		[ "$line" -eq "$line" ] || echo "Specified test number '$line' is, in fact, not a number. Ouch."; [ ! $? ] && return 1
 		[ $line -le 0 ] && echo "Specified test number '$line' is, in fact, too small. Ouch." && return 1
-		[ $line -gt $(cat "$testdir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is, in fact, too big. Ouch." && return 1
+		[ $line -gt $(cat "$mode$stadir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is, in fact, too big. Ouch." && return 1
 		echo -ne "Test $line for $unit:\t"
-		get_nth_line "$testdir/$unit"_test "$line" || echo "Error occured" "file $testdir/$unit"_test "line $line"
+		get_nth_line "$mode$stadir/$unit"_test "$line" || echo "Error occured" "file $mode$stadir/$unit"_test "line $line"
 		echo -ne "Expected stdout:\t"
-		get_nth_line "$testdir/$unit"_out "$line" || echo "Error occured" "file $testdir/$unit"_out "line $line"
+		get_nth_line "$mode$stadir/$unit"_out "$line" | head -c 100 || echo "Error occured" "file $mode$stadir/$unit"_out "line $line"
 		echo -ne "Expected stderr:\t"
-		get_nth_line "$testdir/$unit"_err "$line" || echo "Error occured" "file $testdir/$unit"_err "line $line"
+		get_nth_line "$mode$stadir/$unit"_err "$line" || echo "Error occured" "file $mode$stadir/$unit"_err "line $line"
 		echo -ne "Expected status:\t"
-		get_nth_line "$testdir/$unit"_stat "$line" || echo "Error occured" "file $testdir/$unit"_stat "line $line"
+		get_nth_line "$mode$stadir/$unit"_stat "$line" || echo "Error occured" "file $mode$stadir/$unit"_stat "line $line"
 		echo
 	done
 	echo "All done! :D"
@@ -328,12 +333,12 @@ is_shell(){ # simple test to determine if executable is a shell
 
 generate_test_expectancies(){
 	# | tr '\n' '☃'
-	[ -z "$2" ] && shname="bash"
+	[ -z "$2" ] && local shname="bash"
 	{ [ -n "$2" ] && is_shell "$2" && shname="$2" ;} || { echo "Shell name provided does not work as a shell" > /dev/stderr && return 1 ;}
-	[ ! -f "$testdir"/"$1"_test ] && echo "$1"_test "required for test generation not found :/" > /dev/stderr && return 1
+	[ ! -f "$shname$stadir"/"$1"_test ] && echo "$1"_test "required for test generation not found :/" > /dev/stderr && return 1
 	rm -rf $gendir "/tmp/gentest/"
 	mkdir -p $gendir "/tmp/gentest/" "/tmp/gentest/stat/" "/tmp/gentest/out/" "/tmp/gentest/err/"
-	readarray arr_test < "$testdir"/"$1"_test
+	readarray arr_test < "$shname$stadir"/"$1"_test
 	# echo $? "${arr_test[@]}"
 	for (( test=0; test<${#arr_test[@]}; test++ ))
 	do
@@ -370,28 +375,27 @@ generate_test_expectancies(){
 }
 
 switch_mode(){
-	if [ -n "$1" ] && is_shell "$1";
+	local mode="$1"
+	if [ -n "$mode" ] && ! is_shell "$1";
 	then
-		mode="$1"
-	else
-		[ -n "$1" ] && { echo "Cannot switch to mode; input name isn't a shell." > /dev/stderr ; return 1; }
+		echo "Cannot switch to mode; input name isn't a shell." > /dev/stderr ; return 1;
 	fi
-	[ -z "$1" ] && mode=normal
-	mkdir -p "$testdir"
-	if [ "$mode" = "normal" ];
+	# [ -z "$1" ] && mode=normal
+	mkdir -p "$mode$stadir"
+	if [ -z "$mode" ];
 	then
 		[ ! -d $stadir/ ] && { unpack_tests || { echo "Unpack fail." > /dev/stderr ; return 1 ; } ; }
-		cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+		# cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 	else
 		for cur in $stadir/*_test
 		do
-			cp "$cur" $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+			cp "$cur" $mode$stadir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 			generate_test_expectancies $(basename "$cur" | sed 's/_test//') "$mode" || return 1
-			cp $gendir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+			cp $gendir/* $mode$stadir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 		done
 	fi
 	rm -rf $gendir/
-	echo "Setup complete, $mode mode! :D"
+	echo "Setup complete, $([ -z "$mode" ] && echo "no" || echo $mode) mode! :D"
 	return 0
 }
 
@@ -401,10 +405,10 @@ modifier_set(){
 }
 
 minimalist_tester(){
-	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
+	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$2$stadir"/"$1"_"$arr"; done
 	printf "$1" | tee -a $logfile; echo >> $logfile
 	is_ignored "$1" "all" && printf "$ORN SKIPPED $NC\n" && return 0
-	local len=$(cat "$testdir"/"$1"_test | wc -l)
+	local len=$(cat "$2$stadir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
@@ -422,10 +426,10 @@ minimalist_tester(){
 }
 
 full_tester(){
-	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$testdir"/"$1"_"$arr"; done
+	for arr in "test" "stat" "out" "err"; do readarray -t arr_"$arr" < "$2$stadir"/"$1"_"$arr"; done
 	printf "/// $1 tests ///\n" | tee -a $logfile
 	is_ignored "$1" "all" && printf "$ORN/// SKIPPED ///$NC\n" && return 0
-	local len=$(cat "$testdir"/"$1"_test | wc -l)
+	local len=$(cat "$2$stadir"/"$1"_test | wc -l)
 	for (( test=0; test<$len; test++ ))
 	do
 		((testnb++))
@@ -442,11 +446,11 @@ full_tester(){
 }
 
 tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
-	[ ! -d "$testdir" ] && echo "Dir '$testdir' needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
+	[ ! -d "$1$stadir" ] && echo "Dir '$1$stadir' needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
 	for testname in ${testarray[@]}
 	do
 		for arr in "test" "stat" "out" "err"
-		do	[ ! -f "$testdir"/"$testname"_"$arr" ] && echo "File '$testdir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
+		do	[ ! -f "$1$stadir"/"$testname"_"$arr" ] && echo "File '$1$stadir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
 		done
 	done
 	rm -rf $logdir $logfile
@@ -456,9 +460,9 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 	ign=0
 	for testname in ${testarray[@]}
 	do
-		modifier_set "mini" && minimalist_tester $testname && wait && continue
-		modifier_set "quiet" && full_tester $testname > /dev/null && continue
-		full_tester $testname
+		modifier_set "mini" && minimalist_tester $testname $1 && wait && continue
+		modifier_set "quiet" && full_tester $testname $1 > /dev/null && continue
+		full_tester $testname $1
 	done
 	[ -n "$(grep "SEGV" <$logfile)" ] && echo -e "${RED}SEGFAULT${NC} DETECTED! CHECK LOGFILE! X("
 	val_error
@@ -504,14 +508,14 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	mkdir -p $logdir;
 	(
 		mod=("${tmpmod[@]}"); logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
-		[ -d $testdir ] || switch_mode "bash" > /dev/null
-		tester 2>&1 | cat > result2 # | grep "/// TEST"
+		[ -d "bash$stadir" ] || switch_mode "bash" > /dev/null
+		tester "bash" 2>&1 | cat > result2 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
 	local pid1=$!
 	(
 		mod=("${tmpmod[@]}"); logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
-		[ -d $testdir ] || switch_mode > /dev/null
+		[ -d $stadir ] || switch_mode > /dev/null
 		tester 2>&1 | cat > result1 # | grep "/// TEST"
 		rm -rf $gendir $logfile $testfile
 	) &
@@ -529,14 +533,14 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 		if [ $stat1 -eq 0 ] || [ $stat2 -eq 0 ]; then
 			((goodstuff++))
 			modifier_set "mini" && [ $(( $n%80 )) -eq 0 ] && echo "" | tee -a $logfile
-			modifier_set "mini" && echo -ne "$GRN.$NC" > /dev/stderr && continue
-			echo -e "$GRN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" )  ///$NC" | tee -a $logfile
+			modifier_set "mini" && echo -ne "$GRN.$NC" && continue
+			echo -e "$GRN/// TEST $n  $([ $stat1 -eq 0 ] && echo -n "OK" || echo -n "KO" ) $([ $stat2 -eq 0 ] && echo -n "OK" || echo -n "KO" )  ///$NC"
 		else
 			$(grep "TEST $n  KO" <result1 >>$logfile; grep "^$n:" <result1 >>$logfile; grep "^$n:" <result2 >>$logfile)
 			modifier_set "mini" && [ $(( $n%80 )) -eq 0 ] && echo ""
 			[ $skip -eq 0 ] && modifier_set "mini" && echo -ne "$ORN.$NC" && let "++skp" && continue
 			[ $skip -eq 0 ] && echo -e "$ORN/// TEST $n  SK IP  ///$NC" && let "++skp" && continue
-			modifier_set "mini" && echo -ne "$RED.$NC" > /dev/stderr && continue
+			modifier_set "mini" && echo -ne "$RED.$NC" && continue
 			echo -e "$RED/// TEST $n  KO KO  ///$NC"
 		fi
 	done
@@ -582,9 +586,9 @@ man <(printf "%s\n" ".\" Process this file with
 .SH NAME
 minitester.sh \- test your minishell, test it well.
 .SH SYNOPSIS
-.B ./minitester.sh option [ 
-.I testunit
-.B ] [testnb] ...
+.B ./minitester.sh options [mode] [batch] [modifier] ...
+ 
+.B ./minitester.sh command [command args]
 .SH DESCRIPTION
 .B minitester.sh
 tests your minishell by giving it a plethora of commands
@@ -594,11 +598,35 @@ or
 .BR bash
 mode's expected output, depending on which was set.
 .SH OPTIONS
-.SS Setup
+.B Options
+are
+.I associative
+(with the exception of the 
+.B only
+modifier) and thus can be combined many ways to achieve many different testing results.
+ 
+.SS Mode
 .P
-.B s, set [bash]
+.B [no mode]
 .RS
-Prepare or generate test files for normal or bash mode.
+Normal mode, tester runs minishell against expected results.
+.RE
+.P
+.B bash
+.RS
+Bash mode, tester runs minishell against results generated when the
+.B set
+command is used, therefore tests containing any variable expansion
+or file exploring 
+.RE
+.P
+.B bo2 [modifier]
+.RS
+Best Of 2; run
+.B normal
+and
+.B bash
+modes simultaneously. Useful to check which tests pass either, or fail both.
 .SS Test unit batches
 .P
 .B r, run, ocd [modifier]
@@ -617,13 +645,15 @@ Run all mandatory part test units.
 .RS
 Run all bonus part test units.
 .SS Modifiers
-.B bo2 [modifier]
+.B o, only 
+.I testunit1 testunit2
+.B ...
 .RS
-Best Of 2; run
-.B normal
-and
-.B bash
-mode simultaneously. Useful to check which tests pass either, or fail both.
+Run all test units specified after 
+.B only
+or
+.B o
+keyword. See examples.
 .RE
 .P
 .B mini
@@ -659,19 +689,18 @@ Run with
 aka
 .B empty env
 variable. Useful to check for leaks with missing/unset env variables.
-.SS Filtering
+.SH COMMANDS
+.B Commands
+are handy and necessary
+.I tools
+for extensive testing.
+ 
+.SS Setup
 .P
-.B o, only 
-.I testunit1 testunit2
-.B ...
+.B s, set [bash]
 .RS
-Run all test units specified after 
-.B only
-or
-.B o
-keyword.
-.RE
-.P
+Prepare or generate test files for normal or bash mode.
+.SS Filtering
 .B i, ignore
 .I testunit
 .B [ 
@@ -680,7 +709,7 @@ keyword.
 .RS
 A more permanent alternative to
 .B only
-mode. Specify a
+modifier. Specify a
 .I test unit
 and which
 .I test number
@@ -708,7 +737,7 @@ A classic. Cleans up individual logs and other test-related files.
 .P
 .B fclean
 .RS
-Thorough cleaning. Deletes logfile and all generated/set test directories.
+Thorough cleaning. Deletes logfile and all log and generated stash directories.
 .SS Info
 .B man, usage, -h, --help, help, i'm lost, wtf, RTFM
 .RS
@@ -727,7 +756,11 @@ Have a peek at a test and what outputs it expects. Specify a
 .I test number
 or keyword
 .I all
-to see all tests.
+to see all tests. Specify
+.B bash
+.I before
+.B peek
+to see bash's generated expectancies instead.
 .RE
 .P
 .B save [
@@ -751,6 +784,9 @@ otherwise.
 .RS
 The log file containing all test 
 .B results.
+Can be kept with
+.B save
+command.
 .RE
 .I $savedir/
 .RS
@@ -772,18 +808,24 @@ The test file in which each test is stored to be sent to minishell.
 .RE
 .I $testdir/
 .RS
-The directory containing all test files for whichever
+The directory containing all dummy files for whichever
 .B mode
 is
 .B set
-by user. Tests are fetched from this directory.
+by user.
 Bo2 mode creates separate "$testdir"1 and "$testdir"2 directories.
 .RE
 .I $stadir/
 .RS
 The directory containing all test files for
 .B normal
-mode.
+mode. Tests are fetched from this directory.
+.RE
+.I bash$stadir/
+.RS
+The directory containing all test files for
+.B bash
+mode, if it was set.
 .RE
 .I $pckdir/
 .RS
@@ -855,16 +897,20 @@ keyword, they shall be overturned by only's specified units.
  
 Here is a random example for each option. My treat.
 .RS
-.IP set 12
-.B ./minitester.sh s bash
+.IP none 12
+.B ./minitester.sh noenv noskip val o dollar envvar
+.IP bash
+.B ./minitester.sh bash o dollar
+.IP bo2
+.B ./minitester.sh bo2 mini o echo
 .IP run
-.B ./minitester.sh ocd
+.B ./minitester.sh ocd mini
 .IP mandatory
 .B ./minitester.sh m mini
 .IP bonus
 .B ./minitester.sh bonus quiet
-.IP bo2
-.B ./minitester.sh bo2 mini o echo
+.IP only
+.B ./minitester.sh only dollar wildcard tricky
 .IP mini
 .B ./minitester.sh mini bo2 o envvar parandor
 .IP quiet
@@ -875,8 +921,8 @@ Here is a random example for each option. My treat.
 .B ./minitester.sh noenv noskip val o dollar envvar
 .IP noskip
 .B ./minitester.sh noskip mini val
-.IP only
-.B ./minitester.sh only dollar wildcard tricky
+.IP set
+.B ./minitester.sh s bash
 .IP ignore
 .B ./minitester.sh i wildcard all
 .IP notignore
@@ -888,7 +934,7 @@ Here is a random example for each option. My treat.
 .IP man
 .B ./minitester.sh wtf
 .IP peek
-.B ./minitester.sh peek echo 1 2 3 7 9 32
+.B ./minitester.sh bash peek echo 1 2 3 7 9 32
 .IP save
 .B ./minitester.sh save veryusefullogfilename.txt
 .RE
@@ -900,7 +946,7 @@ I am still learning, and would love any feedback or bug report.
  
 Legend says using run and man in that order
 can cause weird stuff to happen to test units section.
-Or any test unit specifier before man for that matter.
+Or any test unit specifier before any command for that matter.
 .SH AUTHOR
 Ethan Mis <https://github.com/ethanolmethanol>
 .SH \"SEE ALSO\"

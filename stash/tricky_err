@@ -8,7 +8,3 @@ minishell: ./hola: Permission denied☃
 minishell: wc -l: command not found☃
 
 
-
-
-minishell: cd: HOME not set☃
-

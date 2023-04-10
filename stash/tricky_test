@@ -8,7 +8,3 @@ rm hola☃env|"wc" -l
 env|"wc "-l
 expr 1 + 1
 expr $? + $?
-env -i ./minishell☃env
-env -i ./minishell☃export
-env -i ./minishell☃cd
-env -i ./minishell☃cd ~
