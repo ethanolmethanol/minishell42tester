@@ -9,8 +9,7 @@ stadir=stash
 pckdir=".pack"
 ignfile=".testignore"
 savedir=save
-testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "parandor" "wildcard")
-# testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "heredoc" "parandor" "wildcard")
 minishell="./minishell"
 mod=()
 env=""
@@ -62,7 +61,7 @@ main(){
 			exit $?
 			;;
 		"r" | "run" | "ocd")
-			testarray=("wildcard" "dollar" "tricky" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+			testarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 			;;
 		"m" | "mandatory")
 			testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
@@ -200,6 +199,7 @@ peek_test(){
 	local unit="$1"
 	shift
 	local lines=("$@")
+	# use less -N for all ?
 	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$mode$stadir/$unit"_test | wc -l)")")
 	for line in "${lines[@]}"
 	do
@@ -573,6 +573,7 @@ testdescarray=(
 	"Various tests for pipes."
 	"Tricky stuff."
 	"Redirections and other < > >> shenanigans."
+	"Here documents. Heredocs. <<. "
 	"Bonus part. Parentheses, && and || operators."
 	"Bonus part. Wildcard. Jack of all trades. Like me."
 )

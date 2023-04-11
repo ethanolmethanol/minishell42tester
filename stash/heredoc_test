@@ -1,0 +1,19 @@
+cat << hola☃$HOME☃hola
+cat << 'hola'☃$HOME☃hola
+cat << "hola"☃$HOME☃hola
+cat << ho"la"☃$HOME☃hola
+cat << $HOME☃prout☃/mnt/nfs/homes/emis☃$HO☃$HOME
+cat << hola > bonjour☃prout☃bruh☃mini tester☃hola☃cat bonjour
+cat << hola | rev☃prout☃bruh☃mini tester☃hola
+<< hola☃chola☃holache☃     hola☃"hola"☃'hola'☃hola
+<<hola☃☃☃hola
+cat <<
+cat << prout << lol << koala☃prout☃lol☃koala☃
+prout << lol << cat << koala☃prout☃lol☃cat☃koala☃
+<< $hola☃$hola☃
+<< $"hola"$"b"☃holab☃
+<< $"$hola"$$"b"☃$hola$$b☃
+<< ho$la$"$a"$$"b"☃hola$a$$b☃ho$la$a$$nb☃
+echo hola <<< bonjour
+echo hola <<<< bonjour
+echo hola <<<<< bonjour
