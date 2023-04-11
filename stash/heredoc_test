@@ -13,7 +13,7 @@ prout << lol << cat << koala☃prout☃lol☃cat☃koala☃
 << $hola☃$hola☃
 << $"hola"$"b"☃holab☃
 << $"$hola"$$"b"☃$hola$$b☃
-<< ho$la$"$a"$$"b"☃hola$a$$b☃ho$la$a$$nb☃
+<< ho$la$"$a"$$"b"☃hola$a$$b☃ho$la$a$$b☃
 echo hola <<< bonjour
 echo hola <<<< bonjour
 echo hola <<<<< bonjour

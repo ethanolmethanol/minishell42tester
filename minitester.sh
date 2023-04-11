@@ -199,13 +199,15 @@ peek_test(){
 	local unit="$1"
 	shift
 	local lines=("$@")
-	# use less -N for all ?
-	[ "$1" = "all" ] && lines=("$(seq 1 "$(cat "$mode$stadir/$unit"_test | wc -l)")")
+	local display="cat"
+	[ "$1" = "all" ] && lines=($(seq 1 "$(cat "$mode$stadir/$unit"_test | wc -l)" | tr '\n' ' '))
+	[ ${#lines[@]} -gt 9 ] && display="less"
+	(
 	for line in "${lines[@]}"
 	do
-		[ "$line" -eq "$line" ] || echo "Specified test number '$line' is, in fact, not a number. Ouch."; [ ! $? ] && return 1
-		[ $line -le 0 ] && echo "Specified test number '$line' is, in fact, too small. Ouch." && return 1
-		[ $line -gt $(cat "$mode$stadir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is, in fact, too big. Ouch." && return 1
+		[ "$line" -eq "$line" ] 2> /dev/null || { echo "Specified test number '$line' is not a number. Ouch." && exit 1 ; }
+		[ $line -le 0 ] && echo "Specified test number '$line' is too small. Ouch." && exit 1
+		[ $line -gt $(cat "$mode$stadir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is too big. Ouch." && exit 1
 		echo -ne "Test $line for $unit:\t"
 		get_nth_line "$mode$stadir/$unit"_test "$line" || echo "Error occured" "file $mode$stadir/$unit"_test "line $line"
 		echo -ne "Expected stdout:\t"
@@ -216,6 +218,7 @@ peek_test(){
 		get_nth_line "$mode$stadir/$unit"_stat "$line" || echo "Error occured" "file $mode$stadir/$unit"_stat "line $line"
 		echo
 	done
+	) | $display
 	echo "All done! :D"
 }
 
