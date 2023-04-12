@@ -43,10 +43,10 @@ minishell: pwd: No such file or directory☃
 minishell: pwd: No such file or directory☃
 minishell: srcs/pwd: No such file or directory☃
 minishell: ../pwd: No such file or directory☃
-minishell: syntax error near unexpected token `newline' ☃
-minishell: syntax error near unexpected token `>' ☃
-minishell: syntax error near unexpected token `<<' ☃
-minishell: syntax error near unexpected token `>' ☃
+minishell: syntax error near unexpected token `newline'☃
+minishell: syntax error near unexpected token `>'☃
+minishell: syntax error near unexpected token `<<'☃
+minishell: syntax error near unexpected token `>'☃
 minishell: ls: No such file or directory☃
 minishell: ls: No such file or directory☃
 minishell: ls2: No such file or directory☃
