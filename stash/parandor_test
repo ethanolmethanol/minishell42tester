@@ -35,7 +35,7 @@ ls && (ls)
 (ls && pwd) > hola☃cat hola
 > hola ls && pwd
 > hola (ls && pwd)
-(> pwd)☃ls
+(> pwd)☃ls☃rm pwd
 (< pwd)☃ls
 (< pwd)
 ( ( ( ( ( pwd) ) ) ) )

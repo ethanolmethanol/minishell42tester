@@ -1,7 +1,7 @@
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃☃☃☃
+minitester.sh☃☃☃☃
 
 
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃
+minitester.sh☃
 hola$☃
 
 ☃
@@ -25,13 +25,13 @@ ls: /usr/bin/ls /usr/share/man/man1/ls.1posix.gz /usr/share/man/man1/ls.1.gz$$�
 
 
 
-
+minitester.sh
 
 aloh☃
 total 16☃drwx------  2 vietdu91 [...] .☃drwxrwxewt 51 root     [...] ..☃-rwxr-xr-x  8 vietdu91 [...] crashtest.c☃[...]☃
 
 test.c$$$$$$$$$$$☃
-crashtest.c Docs Dockers Drawings Makefile minishell philosophers srcs test.c☃
+minitester.sh☃
 hola☃
 hola☃
 hola☃
@@ -40,9 +40,9 @@ hola☃
 hola☃
 
 
-[...]☃$$☃.PHONY:    all clean fclean re$$☃
-objs/%.o:                srcs/%.c$☃                        @norminette srcs/*$☃
-objs/%.o:                srcs/%.c$☃                        @norminette srcs/*$☃
+$$☃
+syntax;☃
+syntax;☃
 
 
 

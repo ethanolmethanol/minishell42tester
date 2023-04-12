@@ -17,8 +17,8 @@ minishell: syntax error near☃unexpected token `;'☃
 minishell: syntax error near☃unexpected token `;'☃
 minishell: syntax error near☃unexpected token `;'☃
 minishell: syntax error near☃unexpected token `;'☃
-minishell: syntax error near unexpected token `newline' ☃
-minishell: syntax error near unexpected token `newline' ☃
+minishell: syntax error near unexpected token `newline'☃
+minishell: syntax error near unexpected token `newline'☃
 
 
 
@@ -36,14 +36,14 @@ minishell: syntax error near unexpected token `)'☃
 
 minishell: syntax error near unexpected token `('☃
 
-
+minishell: pwd: No such file or directory☃
 minishell: pwd: No such file or directory☃
 
 minishell: syntax error near unexpected token `)'☃
 minishell: syntax error near unexpected token `('☃
 
-minishell: lss: command not found☃minishell: lss: command not found☃
-minishell: lss: command not found☃
+lss: command not found☃lss: command not found☃
+lss: command not found☃
 
 
 

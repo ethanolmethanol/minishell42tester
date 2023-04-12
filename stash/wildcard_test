@@ -1,6 +1,6 @@
 ls *
 ls *.*
 ls *.hola
-cat M*le
-cat M*ee
-cat Make*file
+cat .*es*re
+cat .*es*are
+cat .*es*re

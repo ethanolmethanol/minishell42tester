@@ -61,7 +61,7 @@ main(){
 			exit $?
 			;;
 		"r" | "run" | "ocd")
-			testarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe"  "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+			testarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe" "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 			;;
 		"m" | "mandatory")
 			testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")

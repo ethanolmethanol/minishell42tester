@@ -1,6 +1,6 @@
 chmod 000 minishell☃./minishell☃chmod 755 minishell☃
 ls hola
-./Makefile
+./README.md
 ./minishell
 env | grep SHLVL☃./minishell☃env | grep SHLVL☃exit☃env | grep SHLVL
 touch hola☃./hola

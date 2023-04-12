@@ -22,7 +22,7 @@ whoami | grep $USER
 whoami | grep $USER > /tmp/bonjour☃cat /tmp/bonjour
 whoami | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
 whereis ls | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour☃rm /tmp/bonjour
-rm hola☃ls | hola
+rm -f hola☃ls | hola
 ls | ls hola
 ls | ls | hola
 ls | hola | ls
@@ -31,7 +31,7 @@ ls | ls | echo hola | rev
 ls -la | grep "."
 ls -la | grep "'.'"
 echo test.c | cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e|cat -e|cat -e|cat -e
-ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls☃|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls
+ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls
 echo hola | cat | cat | cat | cat | cat | grep hola
 echo hola | cat
 echo hola| cat
@@ -40,11 +40,11 @@ echo hola|cat
 echo hola || cat
 echo hola ||| cat
 ech|o hola | cat
-cat Makefile | cat -e | cat -e
-cat Makefile | grep srcs | cat -e
-cat Makefile | grep srcs | grep srcs | cat -e
-cat Makefile | grep pr | head -n 5 | cd file_not_exist
-cat Makefile | grep pr | head -n 5 | hello
+cat .testignore | cat -e | cat -e
+cat .testignore | grep syntax | cat -e
+cat .testignore | grep syntax | grep syntax | cat -e
+cat .testignore | grep pr | head -n 5 | cd file_not_exist
+cat .testignore | grep pr | head -n 5 | hello
 export HOLA=bonjour | cat -e | cat -e
 unset HOLA | cat -e
 export HOLA | echo hola☃env | grep PROUT
