@@ -8,3 +8,6 @@ rm hola☃env|"wc" -l
 env|"wc "-l
 expr 1 + 1
 expr $? + $?
+echo ~~
+echo ~lol
+echo lol~

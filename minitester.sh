@@ -87,9 +87,8 @@ main(){
 			;;
 		*)
 		[ -d "$1$stadir" ] && mode="$1" && shift && continue
-		is_shell "$1" && echo "Need to set bash if you wanna use bash mode" && exit 1
-		echo "Whoops! Not a valid argument. Try 'man' if you're lost."
-		exit 1
+		is_shell "$1" && die "Need to set bash if you wanna use bash mode"
+		die "Whoops! Not a valid argument. Try 'man' if you're lost."
 		;;
 	esac
 	shift
@@ -102,6 +101,19 @@ main(){
 	modifier_set "bo2" && best_of_2 && exit $?
 	tester $mode
 	exit $?
+}
+
+function die(){
+	local status=1
+	case $1 in
+		[0-9]) status="$1"; shift 1;;
+	esac
+	test $status -eq 0 && return 0
+	local message="$*"
+	[ -z "$message" ] && message="Died"
+	[ $status -ne 1 ] && message="${BASH_SOURCE[1]}: line ${BASH_LINENO[0]}: ${FUNCNAME[1]}: $message."
+	echo $message >&2
+	exit $status
 }
 
 comp_stat(){ # $1 testnb  $2 expected stat  $3 actual stat
@@ -192,10 +204,10 @@ get_nth_line(){ # $1 is file  $2 is line nb
 
 peek_test(){
 	local mode="$1";
-	[ ! -d "$mode$stadir" ] && echo "No stash directory found. Set a mode, and try again." && return 1
+	[ ! -d "$mode$stadir" ] && die "No stash directory found. Set a mode, and try again."
 	shift
-	[ -z "$(grep "$1"_ <(ls "$mode$stadir"))" ] && echo "Invalid test unit name. Couldn't find." && return 1
-	[ $# -eq 1 ] && echo "Specify at least one test to peek." && return 1
+	[ -z "$(grep "$1"_ <(ls "$mode$stadir"))" ] && die "Invalid test unit name. Couldn't find."
+	[ $# -eq 1 ] && die "Specify at least one test to peek."
 	local unit="$1"
 	shift
 	local lines=("$@")
@@ -205,17 +217,17 @@ peek_test(){
 	(
 	for line in "${lines[@]}"
 	do
-		[ "$line" -eq "$line" ] 2> /dev/null || { echo "Specified test number '$line' is not a number. Ouch." && exit 1 ; }
-		[ $line -le 0 ] && echo "Specified test number '$line' is too small. Ouch." && exit 1
-		[ $line -gt $(cat "$mode$stadir/$unit"_test | wc -l) ] && echo "Specified test number '$line' is too big. Ouch." && exit 1
+		[ "$line" -eq "$line" ] 2> /dev/null || die "Specified test number '$line' is not a number. Ouch."
+		[ $line -le 0 ] && die "Specified test number '$line' is too small. Ouch."
+		[ $line -gt $(cat "$mode$stadir/$unit"_test | wc -l) ] && die "Specified test number '$line' is too big. Ouch."
 		echo -ne "Test $line for $unit:\t"
-		get_nth_line "$mode$stadir/$unit"_test "$line" || echo "Error occured" "file $mode$stadir/$unit"_test "line $line"
+		get_nth_line "$mode$stadir/$unit"_test "$line" || die "Error occured" "file $mode$stadir/$unit"_test "line $line"
 		echo -ne "Expected stdout:\t"
-		get_nth_line "$mode$stadir/$unit"_out "$line" | head -c 100 || echo "Error occured" "file $mode$stadir/$unit"_out "line $line"
+		get_nth_line "$mode$stadir/$unit"_out "$line" | head -c 100 || die "Error occured" "file $mode$stadir/$unit"_out "line $line"
 		echo -ne "Expected stderr:\t"
-		get_nth_line "$mode$stadir/$unit"_err "$line" || echo "Error occured" "file $mode$stadir/$unit"_err "line $line"
+		get_nth_line "$mode$stadir/$unit"_err "$line" || die "Error occured" "file $mode$stadir/$unit"_err "line $line"
 		echo -ne "Expected status:\t"
-		get_nth_line "$mode$stadir/$unit"_stat "$line" || echo "Error occured" "file $mode$stadir/$unit"_stat "line $line"
+		get_nth_line "$mode$stadir/$unit"_stat "$line" || die "Error occured" "file $mode$stadir/$unit"_stat "line $line"
 		echo
 	done
 	) | $display
@@ -227,7 +239,7 @@ peek_test(){
 unite_tests(){
 	for arr in "test" "stat" "out" "err";
 	do
-	[ ! -f "$testdir"/"$1"_"$arr" ] && echo "$1"_"$arr" "required for unification not found :/" > /dev/stderr && return 1
+	[ ! -f "$testdir"/"$1"_"$arr" ] && die "$1"_"$arr" "required for unification not found :/"
 	readarray arr_"$arr" < "$testdir"/"$1"_"$arr"
 	done
 	[ -f "$testdir"/"$1" ] && [ -n "$(cat "$testdir"/"$1")" ] && rm "$testdir"/"$1";
@@ -242,7 +254,7 @@ unite_tests(){
 	# turn a single file into multiple test, status, expected output and expected error files
 	# useful to get all tests in different files to copy them into an excel document's columns
 split_tests(){
-	[ ! -f "$testdir"/"$1" ] && echo "$1" "required for splitting not found :/" > /dev/stderr && return 1
+	[ ! -f "$testdir"/"$1" ] && die "$1" "required for splitting not found :/"
 	for arr in "test" "stat" "out" "err"; # clear out existing files
 	do
 	[ -f "$testdir"/"$1"_"$arr" ] && rm "$testdir"/"$1"_"$arr"; # && [ -n "$(cat "$testdir"/"$1"_"$arr")" ]
@@ -261,11 +273,11 @@ split_tests(){
 
 pack_tests(){
 	mkdir -p $pckdir/
-	cp $stadir/* $pckdir/ || { echo "Cannot pack: copy error" > /dev/stderr && return 1; }
+	cp $stadir/* $pckdir/ || die "Cannot pack: copy error"
 	for p in $(ls $pckdir/ | grep _test)
 	do
 		local testname=$(sed 's/_test//' <(echo "$p"))
-		(testdir=$pckdir/ ; unite_tests "$testname") || { echo "Error encountered during unification" > /dev/stderr && return 1; }
+		(testdir=$pckdir/ ; unite_tests "$testname") || die "Error encountered during unification"
 		rm $pckdir/"$testname"_*
 	done
 	echo "Packing of $1 tests successful! :D"
@@ -273,7 +285,7 @@ pack_tests(){
 
 unpack_tests(){
 	mkdir -p $stadir/
-	cp $pckdir/* $stadir/ || { echo "Cannot unpack: copy error" > /dev/stderr && return 1; }
+	cp $pckdir/* $stadir/ || die $? "Cannot unpack: copy error"
 	for p in $(ls $stadir/)
 	do
 		(testdir=$stadir"up"/ ; split_tests "$p") || { echo "Error encountered during splitting" > /dev/stderr && return 1; }
@@ -286,7 +298,7 @@ ignore_tests(){
 	if [ ! -f "$ignfile" ]; then
 	for testname in ${testarray[@]}; do echo "$testname;" >> "$ignfile"; done
 	fi
-	[ -z "$(grep "$1" "$ignfile")" ] && echo "Invalid test unit name. Couldn't ignore." && return 1
+	[ -z "$(grep "$1" "$ignfile")" ] && die "Invalid test unit name. Couldn't ignore."
 	to_ignore="$1"
 	shift
 	for ignore in "$@";
@@ -297,8 +309,8 @@ ignore_tests(){
 }
 
 notignore_tests(){
-	[ ! -f "$ignfile" ] && echo "Ignore file '$ignfile' not found, nothing to not-ignore." && return 1
-	[ -z "$(grep "$1" "$ignfile")" ] && echo "Invalid test unit name. Couldn't ignore." && return 1
+	[ ! -f "$ignfile" ] && die "Ignore file '$ignfile' not found, nothing to not-ignore."
+	[ -z "$(grep "$1" "$ignfile")" ] && die "Invalid test unit name. Couldn't ignore."
 	to_ignore="$1"
 	shift
 	for ignore in "$@";
@@ -337,8 +349,8 @@ is_shell(){ # simple test to determine if executable is a shell
 generate_test_expectancies(){
 	# | tr '\n' '☃'
 	[ -z "$2" ] && local shname="bash"
-	{ [ -n "$2" ] && is_shell "$2" && shname="$2" ;} || { echo "Shell name provided does not work as a shell" > /dev/stderr && return 1 ;}
-	[ ! -f "$shname$stadir"/"$1"_test ] && echo "$1"_test "required for test generation not found :/" > /dev/stderr && return 1
+	{ [ -n "$2" ] && is_shell "$2" && shname="$2" ;} || die "Shell name provided does not work as a shell"
+	[ ! -f "$shname$stadir"/"$1"_test ] && die "$1"_test "required for test generation not found :/"
 	rm -rf $gendir "/tmp/gentest/"
 	mkdir -p $gendir "/tmp/gentest/" "/tmp/gentest/stat/" "/tmp/gentest/out/" "/tmp/gentest/err/"
 	readarray arr_test < "$shname$stadir"/"$1"_test
@@ -381,24 +393,24 @@ switch_mode(){
 	local mode="$1"
 	if [ -n "$mode" ] && ! is_shell "$1";
 	then
-		echo "Cannot switch to mode; input name isn't a shell." > /dev/stderr ; return 1;
+		die "Cannot switch to mode; input name isn't a shell."
 	fi
 	# [ -z "$1" ] && mode=normal
 	mkdir -p "$mode$stadir"
 	if [ -z "$mode" ];
 	then
-		[ ! -d $stadir/ ] && { unpack_tests || { echo "Unpack fail." > /dev/stderr ; return 1 ; } ; }
+		[ ! -d $stadir/ ] && { unpack_tests || die "Unpack fail." ; }
 		# cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 	else
 		for cur in $stadir/*_test
 		do
-			cp "$cur" $mode$stadir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+			cp "$cur" $mode$stadir/ || die "Copy fail."
 			generate_test_expectancies $(basename "$cur" | sed 's/_test//') "$mode" || return 1
-			cp $gendir/* $mode$stadir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
+			cp $gendir/* $mode$stadir/ || die "Copy fail."
 		done
 	fi
 	rm -rf $gendir/
-	echo "Setup complete, $([ -z "$mode" ] && echo "no" || echo $mode) mode! :D"
+	echo "Setup complete, $([ -z "$mode" ] && echo "normal" || echo $mode) mode! :D"
 	return 0
 }
 
@@ -449,11 +461,11 @@ full_tester(){
 }
 
 tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
-	[ ! -d "$1$stadir" ] && echo "Dir '$1$stadir' needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
+	[ ! -d "$1$stadir" ] && die "Dir '$1$stadir' needed for testing missing. Retry after doing 'set' or 'set bash'"
 	for testname in ${testarray[@]}
 	do
 		for arr in "test" "stat" "out" "err"
-		do	[ ! -f "$1$stadir"/"$testname"_"$arr" ] && echo "File '$1$stadir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'set' or 'set bash'" && return 1
+		do	[ ! -f "$1$stadir"/"$testname"_"$arr" ] && die "File '$1$stadir/$testname"_"$arr'" "needed for testing missing. Retry after doing 'set' or 'set bash'"
 		done
 	done
 	rm -rf $logdir $logfile

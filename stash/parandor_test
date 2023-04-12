@@ -62,3 +62,7 @@ cd ../.. && pwd && pwd
 (cd ../.. && pwd) && pwd
 ls -z || cd ../../..&&pwd☃pwd
 ls -z || (cd ../../..&&pwd)☃pwd
+pwd &&
+pwd ||
+&& pwd
+|| pwd

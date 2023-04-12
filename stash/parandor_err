@@ -10,40 +10,40 @@
 
 
 
-bash: export: `': not a valid identifier☃
-bash: export: `': not a valid identifier☃
-bash: export: `': not a valid identifier☃
-bash: syntax error near☃unexpected token `;'☃
-bash: syntax error near☃unexpected token `;'☃
-bash: syntax error near☃unexpected token `;'☃
-bash: syntax error near☃unexpected token `;'☃
-bash: syntax error near unexpected token `newline' ☃
-bash: syntax error near unexpected token `newline' ☃
+minishell: export: `': not a valid identifier☃
+minishell: export: `': not a valid identifier☃
+minishell: export: `': not a valid identifier☃
+minishell: syntax error near☃unexpected token `;'☃
+minishell: syntax error near☃unexpected token `;'☃
+minishell: syntax error near☃unexpected token `;'☃
+minishell: syntax error near☃unexpected token `;'☃
+minishell: syntax error near unexpected token `newline' ☃
+minishell: syntax error near unexpected token `newline' ☃
 
 
 
 
-bash: export: `': not a valid identifier
+minishell: export: `': not a valid identifier
 
 
-bash: syntax error near unexpected token `)'☃
-
-
-
+minishell: syntax error near unexpected token `)'☃
 
 
 
 
-bash: syntax error near unexpected token `('☃
 
 
-bash: pwd: No such file or directory☃
 
-bash: syntax error near unexpected token `)'☃
-bash: syntax error near unexpected token `('☃
+minishell: syntax error near unexpected token `('☃
 
-bash: lss: command not found☃bash: lss: command not found☃
-bash: lss: command not found☃
+
+minishell: pwd: No such file or directory☃
+
+minishell: syntax error near unexpected token `)'☃
+minishell: syntax error near unexpected token `('☃
+
+minishell: lss: command not found☃minishell: lss: command not found☃
+minishell: lss: command not found☃
 
 
 
@@ -62,3 +62,7 @@ ls: invalid option -- 'z'☃
 
 
 
+minishell: syntax error near unexpected token `&&'
+minishell: syntax error near unexpected token `||'
+minishell: syntax error near unexpected token `&&'
+minishell: syntax error near unexpected token `||'
