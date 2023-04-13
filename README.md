@@ -43,7 +43,18 @@ You may be wondering how I found all those tests. Did I mention my being [lazy](
 
 #      Appearance
 
-[lovely pictures]
+### Setup
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/setbash.png)
+### Minimalism, bash mode
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/bashmini.png)
+### Minimalism, bo2 mode
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/bo2mini.png)
+### Same, but no skip
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/bo2mininoskip.png)
+### No env, valgrind
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/noenvvalheredoc.png)
+### No env, valgrind, quiet
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/noenvvalquietdollar.png)
 
 #      Usage aka MAN
 
