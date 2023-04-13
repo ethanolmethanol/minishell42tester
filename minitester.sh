@@ -537,6 +537,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	local pid2=$!
 	# wait
 	loader $pid1 $pid2
+	touch $logfile
 	local goodstuff=0
 	local skp=0
 	local n=1
