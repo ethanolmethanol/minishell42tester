@@ -107,12 +107,12 @@ main(){
 	while [ $# -ne 0 ]
 	do
 	case "$1" in 
-		"gen")		generate_test_expectancies $2; exit $?;;
-		"unite")	unite_tests $2; exit $?;;
-		"split")	split_tests $2; exit $?;;
-		"pack")		pack_tests; exit $?;;
-		"unpack")	unpack_tests; exit $?;;
-		"check")	sanity_check; exit $?;;
+		# "gen")		generate_test_expectancies $2; exit $?;;
+		# "unite")	unite_tests $2; exit $?;;
+		# "split")	split_tests $2; exit $?;;
+		# "pack")		pack_tests; exit $?;;
+		# "unpack")	unpack_tests; exit $?;;
+		# "check")	sanity_check; exit $?;;
 		"save")		save_log "$2"; exit $?;;
 		"u" | "user" | "guide" | "showmetheway")
 			user_interface;
@@ -183,8 +183,6 @@ main(){
 	echo -e "/^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^ ^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^\\"
 	echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t| ~ By emis. With love."
 	echo -e "\\_ __ __ __ __ __ __ __ __ _ _ __ __ __ __ __ __ __ __ _/\n"
-	# echo "mod mini $(modifier_set "mini"; echo $?)"
-	# echo "mod bo2 $(modifier_set "bo2"; echo $?)"
 	modifier_set "bo2" && best_of_2 && exit $?
 	tester $mode
 	exit $?
@@ -223,11 +221,9 @@ comp_out(){ # $1 testnb  $2 expected out  $3 output type
 	fi
 	local expout=$(echo "$2" | tr '☃' '\n')
 	local outfound=$(echo "$out" | grep -F -- "$expout")
-	# printf "test $1 \$?=$? \n out is [$out] \n outfound is [$outfound]\n"
 	if [ -z "$2" ] && [ -n "$out" ]; then
 		echo "$1: Expected no $output_name but found [$(echo "$out" | head -5)]"
 		return 1
-	# elif [ -n "$3" ] && [ -z "$outfound" ]
 	elif [ -n "$2" ] && [ "$expout" != "$out" ] && [ -z "$outfound" ]; then
 		echo "$1: Expected [$(echo "$expout" | head -5)] $output_name but found [$(echo "$out" | head -5)]"
 		return 1
@@ -344,7 +340,7 @@ split_tests(){
 	[ ! -f "$testdir"/"$1" ] && die "$1" "required for splitting not found :/"
 	for arr in "test" "stat" "out" "err"; # clear out existing files
 	do
-	[ -f "$testdir"/"$1"_"$arr" ] && rm "$testdir"/"$1"_"$arr"; # && [ -n "$(cat "$testdir"/"$1"_"$arr")" ]
+	[ -f "$testdir"/"$1"_"$arr" ] && rm "$testdir"/"$1"_"$arr";
 	done
 	readarray arr < "$testdir"/"$1"
 	for (( test=0; test<${#arr[@]}; ))
@@ -440,10 +436,6 @@ save_log(){
 	echo "Saved! :D"
 }
 
-# add_test(){
-# 	# add arg 2 to testname_test file
-# }
-
 is_shell(){ # simple test to determine if executable is a shell
 	local shname="$1"
 	local result=$("$shname" -ic "echo I am a shell ! " 2> /dev/null)
@@ -452,28 +444,23 @@ is_shell(){ # simple test to determine if executable is a shell
 }
 
 generate_test_expectancies(){
-	# | tr '\n' '☃'
 	[ -z "$2" ] && local shname="bash"
 	{ [ -n "$2" ] && is_shell "$2" && shname="$2" ;} || die "Shell name provided does not work as a shell"
 	[ ! -f "$shname$stadir"/"$1"_test ] && die "$1"_test "required for test generation not found :/"
 	rm -rf $gendir "/tmp/gentest/"
 	mkdir -p $gendir "/tmp/gentest/" "/tmp/gentest/stat/" "/tmp/gentest/out/" "/tmp/gentest/err/"
 	readarray arr_test < "$shname$stadir"/"$1"_test
-	# echo $? "${arr_test[@]}"
 	for (( test=0; test<${#arr_test[@]}; test++ ))
 	do
-		# echo "for$test" > /dev/stderr
 		echo "unset command_not_found_handle" > "/tmp/gentest/$1"
 		echo -n "${arr_test[$test]}" | tr '☃' '\n' >> "/tmp/gentest/$1"
 		fullnb=$(printf "%03d" $test) # Without leading zeros, ls takes the files 0 then 1 then 10 then 100 then 101 ... etc
 		s=$($env $shname -i < "/tmp/gentest/$1" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
-		# s=$(bash -c "$(cat "/tmp/gentest/$1")" 1> "/tmp/gentest/out/"$1"_out_"$fullnb"" 2> "/tmp/gentest/err/"$1"_err_"$fullnb""; echo $?)
 		echo "$s" > "/tmp/gentest/stat/"$1"_stat_"$fullnb""
 	done
 	for stat in $(ls "/tmp/gentest/stat/")
 	do
-		cat /tmp/gentest/stat/"$stat" >> "$gendir"/"$1"_stat # | tr '\n' '☃' 
-		# echo "" >> "$gendir"/"$1"_stat
+		cat /tmp/gentest/stat/"$stat" >> "$gendir"/"$1"_stat
 	done
 	for out in $(ls "/tmp/gentest/out/")
 	do
@@ -500,13 +487,11 @@ switch_mode(){
 	then
 		die "Cannot switch to mode; input name isn't a shell."
 	fi
-	# [ -z "$1" ] && mode=normal
-	mkdir -p "$mode$stadir"
 	if [ -z "$mode" ];
 	then
 		[ ! -d $stadir/ ] && { unpack_tests || die "Unpack fail." ; }
-		# cp $stadir/* $testdir/ || { echo "Copy fail." > /dev/stderr ; return 1 ; }
 	else
+		mkdir -p "$mode$stadir"
 		for cur in $stadir/*_test
 		do
 			cp "$cur" $mode$stadir/ || die "Copy fail."
@@ -565,7 +550,7 @@ full_tester(){
 	done
 }
 
-tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
+tester(){
 	[ ! -d "$1$stadir" ] && die "Dir '$1$stadir' needed for testing missing. Retry after doing 'set' or 'set bash'"
 	for testname in ${testarray[@]}
 	do
@@ -630,14 +615,14 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	(
 		mod=("${tmpmod[@]}"); logfile=bo2.txt; logdir="$logdir"2; testdir="$testdir"2; gendir=gen2; testfile=testfile2;
 		[ -d "bash$stadir" ] || switch_mode "bash" > /dev/null
-		tester "bash" 2>&1 | cat > result2 # | grep "/// TEST"
+		tester "bash" 2>&1 | cat > result2
 		rm -rf $gendir $logfile $testfile
 	) &
 	local pid1=$!
 	(
 		mod=("${tmpmod[@]}"); logfile=bo1.txt; logdir="$logdir"1; testdir="$testdir"1; gendir=gen1; testfile=testfile1;
 		[ -d $stadir ] || switch_mode > /dev/null
-		tester 2>&1 | cat > result1 # | grep "/// TEST"
+		tester 2>&1 | cat > result1
 		rm -rf $gendir $logfile $testfile
 	) &
 	local pid2=$!
@@ -647,7 +632,7 @@ best_of_2(){ # two modes at once. Bow to my superior thinking, puny mortal!
 	local goodstuff=0
 	local skp=0
 	local n=1
-	for (( ; n<=$( <result1 grep "/// TEST" | wc -l ); n++ )) #-${#testarray[@]}
+	for (( ; n<=$( <result1 grep "/// TEST" | wc -l ); n++ ))
 	do
 		local stat1=$(grep "TEST $n  OK" <result1 >/dev/null; echo $?)
 		local stat2=$(grep "TEST $n  OK" <result2 >/dev/null; echo $?)
@@ -1087,8 +1072,3 @@ Ethan Mis <https://github.com/ethanolmethanol>
 }
 
 main "$@"
-
-# if [ -n "$1" ] && [ "$1" = "gen" ] && [ -n "$2" ]; then generate_test_expectancies $2; exit $?; fi
-# if [ -n "$1" ] && [ "$1" = "unite" ] && [ -n "$2" ]; then unite_tests $2; exit $?; fi
-# if [ -n "$1" ] && [ "$1" = "split" ] && [ -n "$2" ]; then split_tests $2; exit $?; fi
-# if [ -n "$1" ] && [ "$1" = "clean" ]; then rm -rf $logdir; else tester $1; fi

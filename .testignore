@@ -9,3 +9,5 @@ redir; 94 ; 93 ; 92 ; 89 ; 65 ;
 heredoc; 18 ; 17 ; 12 ; 11 ; 1 ;
 parandor; 59 ; 55 ; 54 ; 53 ; 52 ; 51 ; 50 ; 49 ; 48 ; 47 ; 35 ; 19 ; 18 ; 17 ; 16 ;
 wildcard;
+tricky;
+hardcore;

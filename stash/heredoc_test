@@ -3,7 +3,7 @@ cat << 'hola'☃$HOME☃hola
 cat << "hola"☃$HOME☃hola
 cat << ho"la"☃$HOME☃hola
 cat << $HOME☃prout☃/mnt/nfs/homes/emis☃$HO☃$HOME
-cat << hola > bonjour☃prout☃bruh☃mini tester☃hola☃cat bonjour
+cat << hola > bonjour☃prout☃bruh☃mini tester☃hola☃cat bonjour☃rm bonjour
 cat << hola | rev☃prout☃bruh☃mini tester☃hola
 << hola☃chola☃holache☃     hola☃"hola"☃'hola'☃hola
 <<hola☃☃☃hola

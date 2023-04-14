@@ -3,10 +3,10 @@ echo que tal >> bonjour☃cat bonjour
 echo hola > bonjour☃echo que tal >> bonjour☃cat < bonjour
 echo hola > bonjour☃rm bonjour☃echo que tal >> bonjour☃cat < bonjour
 echo hola que tal > bonjour☃cat bonjour
-echo hola que tal > /tmp/bonjour☃cat -e /tmp/bonjour
+echo hola que tal > /tmp/bonjour☃cat -e /tmp/bonjour☃rm /tmp/bonjour
 export HOLA=hey☃echo bonjour > $HOLA☃echo $HOLA
-whereis grep > Docs/bonjour☃cat Docs/bonjour
-ls -la > Docs/bonjour☃cat Docs/bonjour
+whereis grep > bonjour☃cat bonjour
+ls -la > bonjour☃cat bonjour
 pwd>bonjour☃cat bonjour
 pwd >                     bonjour☃cat bonjour
 echo hola > > bonjour
@@ -57,7 +57,7 @@ echo hola>bonjour☃cat<bonjour
 echo hola> bonjour☃cat< bonjour
 echo hola               >bonjour☃cat<                     bonjour
 echo hola          >     bonjour☃cat            <         bonjour
-echo hola > srcs/bonjour☃cat < srcs/bonjour
+mkdir srcs☃echo hola > srcs/bonjour☃cat < srcs/bonjour
 echo hola >srcs/bonjour☃cat <srcs/bonjour
 echo hola > bonjour☃echo que tal >> bonjour☃cat < bonjour
 echo hola > bonjour☃rm bonjour☃echo que tal >> bonjour☃cat < bonjour
@@ -92,7 +92,7 @@ export HOLA="bonjour hello"☃>$"HOLA"☃ls
 export HOLA="bonjour hello"☃>$HOLA>hey☃ls
 export HOLA="bonjour hello"☃>hey>$HOLA☃ls
 export HOLA="bonjour hello"☃>hey>$HOLA>hey>hey☃ls
-export A=hey☃export A B=Hola D E C="Que Tal"☃echo $PROUT$B$C > /tmp/a > /tmp/b > /tmp/c☃cat /tmp/a☃cat /tmp/b☃cat /tmp/c
+export A=hey☃export A B=Hola D E C="Que Tal"☃echo $PROUT$B$C > a > b > c☃cat a☃cat b☃cat c
 echo "Amour Tu es Horrible" > a☃echo "0123456789" > b☃echo "Prout" > c☃
 <a cat <b <c
 <a cat <b <c☃cat a☃cat b☃cat c
@@ -103,4 +103,4 @@ mkdir dir☃ls -la > dir/bonjour☃cat dir/bonjour
 <a☃cat a
 >d cat <a >>e☃cat a☃cat d☃cat e
 < a > b cat > hey >> d☃cat d☃ls
-rm -rf a b c d e hey hola* HOLA bonjour* dir ls1 pwd
+rm -rf a b c d e hey hola* HOLA bonjour* dir srcs ls1 pwd
