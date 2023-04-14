@@ -10,7 +10,9 @@ Therefore I made `minitester.sh`, my little monstrosity of a tester. **Over 700 
 
 ### How ?
 
-I would explain the usage a little, but since I made a whole [man](https://github.com/ethanolmethanol/minishell42tester#usage-aka-man), I assume you know what to do. RTFM. Looks even nicer in the terminal. `minitester.sh man` :D
+I would explain the usage a little, but since I made a whole [man](https://github.com/ethanolmethanol/minishell42tester#usage-aka-man), I assume you know what to do. RTFM. Looks even nicer in the terminal. `./minitester.sh man` :D
+
+Although if you're *lazy* like me, let me tell you I made a cute ***interface*** just for you, dear potential user. `./minitester.sh user`
 
 As for how it works inside, well, bash. Run minishell in a script, i.e. feed it a file containing the lines you want to test, say *testfile*, and gather the stdout and stderr in other file, like so `./minishell < testfile 1> output 2> erroutput`.
 Then it's a matter of comparing the output, error output and return status gathered with either pre-existing files with expected results, or with files generated in a similar fashion, but using bash as a reference. If the files somewhat match, the test is ***OK***, otherwise it is ***KO***.
@@ -43,6 +45,8 @@ You may be wondering how I found all those tests. Did I mention my being [lazy](
 
 #      Appearance
 
+### Interface for newbies
+![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/interface.png)
 ### Setup
 ![](https://github.com/ethanolmethanol/minishell42tester/blob/main/img/setbash.png)
 ### Minimalism, bash mode

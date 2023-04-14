@@ -20,16 +20,19 @@ env=""
 prompt="minishell"
 RED='\033[0;31m'
 GRN='\033[0;32m'
+YEL='\033[0;33m'
+BLU='\033[0;34m'
+MAG='\033[0;35m'
 ORN='\033[38;2;255;165;0m'
 NC='\033[0m'
 
 prompt_choice(){
-	echo "~ $1 ~"
+	echo -e "~ $1 ~"
 	shift
 	local prompt=$(
 		local n=1;
 		for option in "$@"; do
-		printf "$n) $option    "; let "n++"
+		printf "$([ $(( $n%2 )) -eq 1 ] && printf "${RED}" || printf "${GRN}") $n)${NC} $option    "; let "n++"
 		[ $# -gt 4 ] && [ $# -ge $n ] && echo
 		done
 		printf "\n> "
@@ -45,20 +48,20 @@ prompt_choice(){
 user_interface(){
 	local choices=()
 	local end=()
-	prompt_choice "Hi! I'm minitester. What can I do for you ? [enter choice number]" "test stuff" "run a command"
+	prompt_choice "Hi! I'm ${RED}mini${GRN}tester${NC}. What can ${RED}I${NC} do for ${GRN}you${NC} ? [enter number]" "${RED}test ${ORN}your ${GRN}minishell${NC}" "${BLU}run ${MAG}a ${YEL}command${NC}"
 	[ $? -eq 1 ] && {
 		while true; do
-		prompt_choice "Select a mode, test unit batch and/or modifier ?" "mode" "batch" "modifier" "all done" "abort"
+		prompt_choice "Select a ${BLU}mode${NC}, ${MAG}test unit batch${NC} and/or ${YEL}modifier${NC} ?" "${BLU}mode${NC}" "${MAG}test unit batch${NC}" "${YEL}modifier${NC} " "${GRN}all done${NC}" "${RED}abort${NC}"
 		case $? in
 			1)
-				prompt_choice "What mode ?" "normal" "bash" "best of 2"
+				prompt_choice "What ${BLU}mode${NC} ?" "normal" "bash" "best of 2"
 				case $? in 2) choices+=("bash");; 3) choices+=("bo2");; esac
 				;;
 			2)
-				prompt_choice "What units ?" "all" "all, but ordered" "mandatory part" "bonus part" "hard stuff" "choose"
+				prompt_choice "What ${MAG}units${NC} ?" "all" "all, but ordered" "mandatory part" "bonus part" "hard stuff" "choose"
 				case $? in 2) choices+=("ocd");; 3) choices+=("m");; 4) choices+=("b");; 5) choices+=("h");;
 					6)
-					local prompt="$(printf "Enter the name(s) of the unit(s) you wish to run.\nAvailable units: ${testarray[*]} \n> ")"
+					local prompt="$(printf "Enter the name(s) of the ${MAG}unit(s)${NC} you wish to run.\nAvailable ${MAG}units${NC}: ${testarray[*]} \n> ")"
 					read -p "$prompt" -a units
 					[ ${#units[@]} -eq 0 ] && echo "Need at least one test unit." && continue
 					for a in "${units[@]}"
@@ -69,7 +72,7 @@ user_interface(){
 				esac
 				;;
 			3)
-				prompt_choice "What modifier ?" "mini" "quiet" "valgrind" "noskip" "noenv"
+				prompt_choice "What ${YEL}modifier${NC} ?" "mini" "quiet" "valgrind" "noskip" "noenv"
 				case $? in 1) choices+=("mini");; 2) choices+=("quiet");; 3) choices+=("val");;
 				4) choices+=("noskip");; 5) choices+=("noenv");; esac
 				;;
@@ -79,7 +82,7 @@ user_interface(){
 		done
 	} || {
 		local cmd=("set" "ignore" "notignore" "clean" "fclean" "man" "peek" "save")
-		prompt_choice "Which command ?" "${cmd[@]}"
+		prompt_choice "Which ${YEL}command${NC} ?" "${cmd[@]}"
 		local nb=$?
 		choices+=("${cmd[$(( $nb-1 ))]}")
 		case $nb in
