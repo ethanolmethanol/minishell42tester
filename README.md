@@ -146,6 +146,10 @@ You may be wondering how I found all those tests. Did I mention my being [lazy](
        man, usage, -h, --help, help, i'm lost, wtf, RTFM
               You're reading it.
 
+       u, user, guide, showmetheway
+              As an attempt at simplifying the learning curve for this tester, this simple user interface  allows  you  to
+              run any options or command (except itself of course) by answering simple questions.
+
        p, peek testunit [ testnb ] ...
               Have a peek at a test and what outputs it expects. Specify a test unit , one or many test number
               or keyword all to see all tests. Specify bash before peek to see bash's generated expectancies instead.

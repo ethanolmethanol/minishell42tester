@@ -10,6 +10,10 @@ pckdir=".pack"
 ignfile=".testignore"
 savedir=save
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "heredoc" "parandor" "wildcard")
+ocdarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe" "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+mandarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
+bonuarray=("parandor" "wildcard")
+hardarray=("tricky" "hardcore")
 minishell="./minishell"
 mod=()
 env=""
@@ -19,11 +23,82 @@ GRN='\033[0;32m'
 ORN='\033[38;2;255;165;0m'
 NC='\033[0m'
 
-# add comp_val for valgrind stuff
+prompt_choice(){
+	echo "~ $1 ~"
+	shift
+	local prompt=$(
+		local n=1;
+		for option in "$@"; do
+		printf "$n) $option    "; let "n++"
+		[ $# -gt 4 ] && [ $# -ge $n ] && echo
+		done
+		printf "\n> "
+		)
+	read -p "$prompt" choice
+	[ "${choice}" = "quit" ] && exit 1
+	if ! echo "$(seq 1 $#)" | grep -q -P "^${choice}$";
+	then prompt_choice "Wrong choice. Type 'quit' if you wish to exit." "$@"
+	fi
+	return $choice
+}
+
+user_interface(){
+	local choices=()
+	local end=()
+	prompt_choice "Hi! I'm minitester. What can I do for you ? [enter choice number]" "test stuff" "run a command"
+	[ $? -eq 1 ] && {
+		while true; do
+		prompt_choice "Select a mode, test unit batch and/or modifier ?" "mode" "batch" "modifier" "all done" "abort"
+		case $? in
+			1)
+				prompt_choice "What mode ?" "normal" "bash" "best of 2"
+				case $? in 2) choices+=("bash");; 3) choices+=("bo2");; esac
+				;;
+			2)
+				prompt_choice "What units ?" "all" "all, but ordered" "mandatory part" "bonus part" "hard stuff" "choose"
+				case $? in 2) choices+=("ocd");; 3) choices+=("m");; 4) choices+=("b");; 5) choices+=("h");;
+					6)
+					local prompt="$(printf "Enter the name(s) of the unit(s) you wish to run.\nAvailable units: ${testarray[*]} \n> ")"
+					read -p "$prompt" -a units
+					[ ${#units[@]} -eq 0 ] && echo "Need at least one test unit." && continue
+					for a in "${units[@]}"
+					do	[ $(ls $mode$stadir 2> /dev/null | grep "^${a}_test$" | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && continue
+					done
+					end+=("o" "${units[@]}")
+					;;
+				esac
+				;;
+			3)
+				prompt_choice "What modifier ?" "mini" "quiet" "valgrind" "noskip" "noenv"
+				case $? in 1) choices+=("mini");; 2) choices+=("quiet");; 3) choices+=("val");;
+				4) choices+=("noskip");; 5) choices+=("noenv");; esac
+				;;
+			4) break ;;
+			5) echo "Goodbye!"; exit 1 ;;
+		esac
+		done
+	} || {
+		local cmd=("set" "ignore" "notignore" "clean" "fclean" "man" "peek" "save")
+		prompt_choice "Which command ?" "${cmd[@]}"
+		local nb=$?
+		choices+=("${cmd[$(( $nb-1 ))]}")
+		case $nb in
+			1 | 2 | 3 | 7 | 8)
+				local stuff=""
+				case $nb in 1) stuff="mode";; 2 | 3 | 7) stuff="testunit ['all'/testnb...]";; 8) stuff="log file name";; esac
+				read -p "Specify ${cmd[$(( $?-1 ))]} args [$stuff]: " -a end ;;
+		esac
+	}
+	choices+=("${end[@]}")
+	echo
+	echo "Next time, to skip this interface you can use \` ./minitester.sh ${choices[@]} ' :D"
+	echo
+	main "${choices[@]}"
+}
+
 # add 'cleanup tests' that delete any created files from prior tests,
 # not to interfere with ls or other tests involving present files
 # add sanity check by just packing and unpacking and doing a diff -ru stash/ tmppack/
-# make nicer argument parsing with while loop and shift :)
 main(){
 	local mode=""
 	while [ $# -ne 0 ]
@@ -34,7 +109,12 @@ main(){
 		"split")	split_tests $2; exit $?;;
 		"pack")		pack_tests; exit $?;;
 		"unpack")	unpack_tests; exit $?;;
+		"check")	sanity_check; exit $?;;
 		"save")		save_log "$2"; exit $?;;
+		"u" | "user" | "guide" | "showmetheway")
+			user_interface;
+			exit $?
+			;;
 		"p" | "peek")
 			shift
 			peek_test "$mode" "$@";
@@ -61,16 +141,20 @@ main(){
 			exit $?
 			;;
 		"r" | "run" | "ocd")
-			testarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe" "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
+			testarray=("${ocdarray[@]}")
 			;;
 		"m" | "mandatory")
-			testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
+			testarray=("${mandarray[@]}")
 			;;
 		"b" | "bonus")
-			testarray=("parandor" "wildcard")
+			testarray=("${bonarray[@]}")
+			;;
+		"h" | "hard")
+			testarray=("${hardarray[@]}")
 			;;
 		"o" | "only")
 			shift
+			[ $# -eq 0 ] && die "Only: need at least one test unit to work."
 			for a in $@
 			do	[ $(ls $mode$stadir 2> /dev/null | grep "$a"_test | wc -c) -eq 0 ] && echo "'$a' test unit not found. Be sure to set a mode." && exit 1
 			done
@@ -88,7 +172,7 @@ main(){
 		*)
 		[ -d "$1$stadir" ] && mode="$1" && shift && continue
 		is_shell "$1" && die "Need to set bash if you wanna use bash mode"
-		die "Whoops! Not a valid argument. Try 'man' if you're lost."
+		die "Whoops! Not a valid argument. Try 'man' if you're lost, or 'user' to be guided."
 		;;
 	esac
 	shift
@@ -207,7 +291,7 @@ peek_test(){
 	[ ! -d "$mode$stadir" ] && die "No stash directory found. Set a mode, and try again."
 	shift
 	[ -z "$(grep "$1"_ <(ls "$mode$stadir"))" ] && die "Invalid test unit name. Couldn't find."
-	[ $# -eq 1 ] && die "Specify at least one test to peek."
+	[ $# -le 1 ] && die "Specify at least one test to peek."
 	local unit="$1"
 	shift
 	local lines=("$@")
@@ -288,10 +372,28 @@ unpack_tests(){
 	cp $pckdir/* $stadir/ || die $? "Cannot unpack: copy error"
 	for p in $(ls $stadir/)
 	do
-		(testdir=$stadir"up"/ ; split_tests "$p") || { echo "Error encountered during splitting" > /dev/stderr && return 1; }
+		(testdir=$stadir/ ; split_tests "$p") || { echo "Error encountered during splitting" > /dev/stderr && return 1; }
 		rm $stadir/"$p"
 	done
 	echo "Unpacking of $1 tests successful! :D"
+}
+
+sanity_check(){
+	[ ! -d $stadir ] && die "No $stadir dir, cannot check sanity."
+	local ori=$stadir
+	pckdir=/tmp/mshtstsanitycheckpck
+	pack_tests > /dev/null
+	stadir=/tmp/mshtstsanitycheckunpck
+	unpack_tests > /dev/null
+	diff -ru $ori/ $stadir/ > sanichecklog.txt
+	rm -rf $pckdir/ $stadir/
+	if [ -n "$(cat sanichecklog.txt)" ]; then
+		echo "Error detected, check sanichecklog.txt for info..."
+		return 1
+	fi
+	rm sanichecklog.txt
+	echo "All good, sanity check OK! :D"
+	return 0
 }
 
 ignore_tests(){
@@ -331,7 +433,7 @@ save_log(){
 	mkdir -p $savedir
 	local dttm="$1"
 	[ -z "$dttm" ] && dttm=$(date +"log_%m_%d_%Y@%Hh%Mm%Ss.txt")
-	cp $logfile $savedir/$dttm
+	cp $logfile $savedir/$dttm 2> /dev/null || die "Save error. Make sure there is a logfile to be saved."
 	echo "Saved! :D"
 }
 
@@ -470,6 +572,7 @@ tester(){ # for sig n heredoc: <&- >&- 2>&- close stdin stdout stderr
 	done
 	rm -rf $logdir $logfile
 	mkdir -p $logdir;
+	touch $logfile
 	testnb=0
 	succ=0
 	ign=0
@@ -761,6 +864,13 @@ Thorough cleaning. Deletes logfile and all log and generated stash directories.
 You're reading it.
 .RE
 .P
+.B u, user, guide, showmetheway
+.RS
+As an attempt at simplifying the learning curve for this tester,
+this simple user interface allows you to run any options or command
+(except itself of course) by answering simple questions.
+.RE
+.P
 .B p, peek
 .I testunit
 .B [ 
@@ -950,6 +1060,8 @@ Here is a random example for each option. My treat.
 .B ./minitester.sh fclean
 .IP man
 .B ./minitester.sh wtf
+.IP user
+.B ./minitester.sh showmetheway
 .IP peek
 .B ./minitester.sh bash peek echo 1 2 3 7 9 32
 .IP save
