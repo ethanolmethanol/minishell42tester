@@ -242,6 +242,8 @@ Here is a random example for each option. My treat.
 
               man         ./minitester.sh wtf
 
+              user        ./minitester.sh showmetheway
+
               peek        ./minitester.sh bash peek echo 1 2 3 7 9 32
 
               save        ./minitester.sh save veryusefullogfilename.txt
