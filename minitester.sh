@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# FILES
 logdir=logs
 logfile=logfile.txt
 testdir=tests
@@ -9,15 +10,24 @@ stadir=stash
 pckdir=".pack"
 ignfile=".testignore"
 savedir=save
+# BATCHES
 testarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir" "heredoc" "parandor" "wildcard")
 ocdarray=("wildcard" "dollar" "tricky" "heredoc" "exit" "pipe" "syntax" "parandor" "cdpwd" "redir" "echo" "envvar")
 mandarray=("syntax" "echo" "dollar" "envvar" "cdpwd" "exit" "pipe" "tricky" "redir")
 bonuarray=("parandor" "wildcard")
 hardarray=("tricky" "hardcore")
+# IMPORTANT STUFF
+# the path to your minishell executable.
 minishell="./minishell"
+# the path to your minishell directory, where the executable can be copied from.
+fetchpath="../minishell42"
+# array for modifiers
 mod=()
+# var used for env -i shenanigans
 env=""
-prompt="minishell"
+# your minishell's prompt (needs to match whatever your prompt is from the BEGINNING of the line)
+prompt="minishell" # in my minishell's case, the prompt is 'minishell$ '
+# COLOURS
 RED='\033[0;31m'
 GRN='\033[0;32m'
 YEL='\033[0;33m'
@@ -48,6 +58,7 @@ prompt_choice(){
 user_interface(){
 	local choices=()
 	local end=()
+	[ ! -d $stadir ] && echo "First time use ? Might want to use 'set' as a first command. A good starting point."
 	prompt_choice "Hi! I'm ${RED}mini${GRN}tester${NC}. What can ${RED}I${NC} do for ${GRN}you${NC} ? [enter number]" "${RED}test ${ORN}your ${GRN}minishell${NC}" "${BLU}run ${MAG}a ${YEL}command${NC}"
 	[ $? -eq 1 ] && {
 		while true; do
@@ -113,6 +124,7 @@ main(){
 		# "pack")		pack_tests; exit $?;;
 		# "unpack")	unpack_tests; exit $?;;
 		# "check")	sanity_check; exit $?;;
+		# "rep")	re_place_holder; exit $?;;
 		"save")		save_log "$2"; exit $?;;
 		"u" | "user" | "guide" | "showmetheway")
 			user_interface;
@@ -135,7 +147,7 @@ main(){
 			;;
 		"c" | "clean" | "fclean")
 			rm -rf $logdir* a b c bonjour hola hey pwd
-			[ "$1" = "fclean" ] && rm -rf $logfile $testdir* ?*$stadir
+			[ "$1" = "fclean" ] && rm -rf $logfile $testfile $testdir* ?*$stadir
 			echo "All $1!"
 			exit 0
 			;;
@@ -183,9 +195,18 @@ main(){
 	echo -e "/^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^ ^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^\\"
 	echo -e "|\t~/~\t~/~\t${RED}MINI${GRN}TESTER${NC}\t~\\~\t~\\~\t| ~ By emis. With love."
 	echo -e "\\_ __ __ __ __ __ __ __ __ _ _ __ __ __ __ __ __ __ __ _/\n"
+	fetch_last
 	modifier_set "bo2" && best_of_2 && exit $?
 	tester $mode
 	exit $?
+}
+
+fetch_last(){
+	[ ! -d $fetchpath ] && return 1
+	[ ! -f $fetchpath/minishell ] && return 1
+	cp $fetchpath/minishell . || die "Fetch fail :("
+	echo "Minishell executable was successfully fetched from $fetchpath !"
+	return 0
 }
 
 function die(){
@@ -369,12 +390,13 @@ pack_tests(){
 unpack_tests(){
 	mkdir -p $stadir/
 	cp $pckdir/* $stadir/ || die $? "Cannot unpack: copy error"
+	echo -e "${YEL}"
 	for p in $(ls $stadir/)
 	do
 		(testdir=$stadir/ ; split_tests "$p") || { echo "Error encountered during splitting" > /dev/stderr && return 1; }
 		rm $stadir/"$p"
 	done
-	echo "Unpacking of $1 tests successful! :D"
+	echo -e "Unpacking of $1 tests successful! :D${NC}"
 }
 
 sanity_check(){
@@ -393,6 +415,46 @@ sanity_check(){
 	rm sanichecklog.txt
 	echo "All good, sanity check OK! :D"
 	return 0
+}
+
+re_place_holder(){
+	[ ! -d "$stadir" ] && echo "Stash dir not found. Cannot replace." && return 1
+	echo -e "${MAG}"
+	sed -i "s@/mnt/nfs/homes/emis/Documents/minishell42tester@$PWD@g" $stadir/*
+	echo "\$PWD is now set as \`$PWD' in normal mode! :D"
+	sed -i "s@/mnt/nfs/homes/emis@$HOME@g" $stadir/*
+	echo "\$HOME is now set as \`$HOME' in normal mode! :D"
+	sed -i "s@emis@$USER@g" $stadir/*
+	echo "\$USER is now set as \`$USER' in normal mode! :D"
+	sed -i "s@\./minishell@$minishell@g" $stadir/*
+	echo "\$minishell is now set as \`$minishell' in normal mode! :D"
+	echo -e "Replaced all placeholders! :D${NC}"
+	return 0
+}
+
+first_set_info(){
+	echo
+	echo -e "${BLU}Why hello there young minishell enthusiast. Ethan here."
+	echo -e "As this is the ${GRN}first time${BLU} you set normal mode, I have some ${RED}valuable info${BLU} for you."
+	echo
+	echo "Your file management WILL differ from mine."
+	echo "If you haven't copied your minishell executable in this repo yet, three options are available:"
+	echo "1 - You copy it. Manually. Like a chad."
+	echo "2 - You change the \$minishell variable in this script to represent the path to your actual executable."
+	echo "3 - You change the \$fetchpath variable to allow this tester to automatically fetch your latest executable for you."
+	echo
+	echo "Same thing for your minishell prompt. Some people go all out and others just don't."
+	echo "In any case make sure the \$prompt variable corresponds to your actual prompt (just the beginning is fine)"
+	echo "AND that your prompt cannot confuse the tester,"
+	echo "I.E. having '\$' as a prompt might invalidate any tests expecting '\$[...]' as an output"
+	echo
+	echo "Ignore file. Yeah. Useful to skip tests or whole units."
+	echo "Just don't forget to use noskip with val and you should be alright."
+	echo "Bash pro tip: {1..5} expands to 1 2 3 4 5. Useful if you wanna peek/skip a bunch of consecutive tests."
+	echo
+	echo "As for the rest, the user interface and man should help you whenever needed."
+	echo "If you find any critical blunder on my part, reach out to me ! Email, discord, SMS. Feedback is appreciated."
+	echo -e "${NC}"
 }
 
 ignore_tests(){
@@ -489,7 +551,11 @@ switch_mode(){
 	fi
 	if [ -z "$mode" ];
 	then
-		[ ! -d $stadir/ ] && { unpack_tests || die "Unpack fail." ; }
+		[ ! -d $stadir/ ] && { 
+			unpack_tests "all" || die "Unpack fail.";
+			re_place_holder || die "Placeholder fail.";
+			first_set_info;
+		} || echo "[Nothing to be done for normal mode]"
 	else
 		mkdir -p "$mode$stadir"
 		for cur in $stadir/*_test

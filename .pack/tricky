@@ -1,0 +1,52 @@
+chmod 000 minishell☃./minishell☃chmod 755 minishell☃
+0
+
+minishell: ./minishell: Permission denied☃
+ls hola
+2
+
+ls: cannot access 'hola': No such file or directory☃
+./README.md
+126
+
+minishell: ./README.md: Permission denied☃
+./minishell
+0
+
+
+env | grep SHLVL☃./minishell☃env | grep SHLVL☃exit☃env | grep SHLVL
+0
+
+
+touch hola☃./hola
+126
+
+minishell: ./hola: Permission denied☃
+rm hola☃env|"wc" -l
+0
+53☃
+
+env|"wc "-l
+127
+
+wc -l: command not found☃
+expr 1 + 1
+0
+2☃
+
+expr $? + $?
+0
+0☃
+
+echo ~~
+0
+~~
+
+echo ~lol
+0
+~lol
+
+echo lol~
+0
+lol~
+

@@ -1,7 +1,0 @@
-echo lol > /dev/full
-echo -n > /dev/full
-env > /dev/full
-pwd > /dev/full
-export > /dev/full
-export CDPATH="/" && cd tmp > /dev/full
-<<here>hola cat -e>/dev/stdout</dev/stdin☃lol☃here☃cat hola☃rm hola

@@ -1,0 +1,632 @@
+env
+0
+PATH=
+
+env hola
+127
+
+env: ʻhola’: No such file or directory☃
+env hola que tal
+127
+
+env: ʻhola’: No such file or directory☃
+env env
+0
+PATH=
+
+env env env env env
+0
+PATH=
+
+env ls
+0
+minitester.sh
+
+env ./Makefile
+126
+
+env: ‘./Makefile’: Permission denied
+export HOLA=bonjour☃env
+0
+HOLA=bonjour
+
+export       HOLA=bonjour☃env
+0
+HOLA=bonjour
+
+export
+0
+export PATH="..."☃
+
+export Hola☃export
+0
+export HOME="/mnt/nfs/homes/emis"☃export Hola☃export PATH="..."☃
+
+export Hola9hey☃export
+0
+HOME="/mnt/nfs/homes/emis"☃Hola9hey☃PATH="..."☃
+
+export $DONTEXIST
+0
+export HOME="/mnt/nfs/homes/emis"☃export PATH="..."☃
+
+export | grep "HOME"
+0
+export HOME="/mnt/nfs/homes/emis"☃
+
+export ""
+1
+
+minishell: export: `': not a valid identifier
+export =
+1
+
+minishell: export: ʻ=': not a valid identifier
+export %
+1
+
+minishell: export: ʻ%': not a valid identifier
+export $?
+1
+
+minishell: export: `0': not a valid identifier
+export ?=2
+1
+
+minishell: export: ʻ?=2': not a valid identifier
+export 9HOLA=
+1
+
+minishell: export: ʻ9HOLA=': not a valid identifier
+export HOLA9=bonjour☃env
+0
+HOLA9=bonjour☃
+
+export _HOLA=bonjour☃env
+0
+_HOLA=bonjour☃
+
+export ___HOLA=bonjour☃env
+0
+___HOLA=bonjour☃
+
+export _HO_LA_=bonjour☃env
+0
+_HO_LA_=bonjour☃
+
+export HOL@=bonjour
+1
+
+minishell: export: ʻHOL@=bonjour’: not a valid identifier
+export HOL\~A=bonjour
+1
+
+minishell: export: `HOL~A=bonjour': not a valid identifier
+export -HOLA=bonjour
+2
+
+minishell: export: -H: invalid option
+export --HOLA=bonjour
+2
+
+minishell: export: --: invalid option
+export HOLA-=bonjour
+1
+
+minishell: export: `HOLA-=bonjour': not a valid identifier
+export HO-LA=bonjour
+1
+
+minishell: export: `HO-LA=bonjour': not a valid identifier
+export HOL.A=bonjour
+1
+
+minishell: export: `HOL.A=bonjour': not a valid identifier
+export HOL\\\$A=bonjour
+1
+
+minishell: export: `HOL\$A=bonjour': not a valid identifier
+export HO\\\\LA=bonjour
+1
+
+minishell: export: `HO\\LA=bonjour': not a valid identifier
+export HOL}A=bonjour
+1
+
+minishell: export: `HOL}A=bonjour': not a valid identifier
+export HOL{A=bonjour
+1
+
+minishell: export: `HOL{A=bonjour': not a valid identifier
+export HO*LA=bonjour
+1
+
+minishell: export: `HO*LA=bonjour': not a valid identifier
+export HO#LA=bonjour
+1
+
+minishell: export: `HO#LA=bonjour': not a valid identifier
+export HO@LA=bonjour
+1
+
+minishell: export: `HO@LA=bonjour': not a valid identifier
+export HO!LA=bonjour
+0
+
+minishell: !LA=bonjour: event not found
+export HO$?LA=bonjour☃env
+0
+HO0LA=bonjour☃
+
+export +HOLA=bonjour
+1
+
+minishell: export: `+HOLA=bonjour': not a valid identifier☃
+export HOL+A=bonjour
+1
+
+minishell: export: `HOL+A=bonjour': not a valid identifier☃
+export HOLA+=bonjour☃env
+0
+HOLA=bonjour☃
+
+export HOLA=bonjour☃export HOLA+=bonjour☃env
+0
+HOLA=bonjourbonjour☃
+
+exportHOLA=bonjour☃env
+0
+PATH=☃
+
+export HOLA =bonjour
+1
+
+minishell: export: ʻ=bonjour’: not a valid identifier
+export HOLA = bonjour
+1
+
+minishell: export: ʻ=': not a valid identifier
+export HOLA=bon jour☃env
+0
+HOLA=bon☃
+
+export HOLA= bonjour☃env
+0
+HOLA=☃
+
+export HOLA=bonsoir☃export HOLA=bonretour☃export HOLA=bonjour☃env
+0
+HOLA=bonjour☃
+
+export HOLA=$HOME☃env
+0
+HOLA=/mnt/nfs/homes/emis☃
+
+export HOLA=bonjour$HOME☃env
+0
+HOLA=bonjour/mnt/nfs/homes/emis☃
+
+export HOLA=$HOMEbonjour☃env
+0
+HOLA=☃
+
+export HOLA=bon$jour☃env
+0
+HOLA=bon☃
+
+export HOLA=bon\jour☃env
+0
+HOLA=bonjour☃
+
+export HOLA=bon\\jour☃env
+0
+HOLA=bon\jour☃
+
+export HOLA=bon(jour
+2
+
+minishell: syntax error near unexpected token `('☃
+export HOLA=bon()jour
+2
+
+minishell: syntax error near unexpected token `('☃
+export HOLA=bon&jour
+127
+
+jour: command not found☃
+export HOLA=bon@jour☃env
+0
+HOLA=bon@jour☃
+
+export HOLA=bon;jour☃env
+0
+
+jour: command not found☃HOLA=bon☃"
+export HOLA=bon!jour
+1
+
+minishell: !jour: event not found☃
+export HOLA=bon"jour"☃env
+0
+HOLA=bonjour☃PATH=☃
+
+export HOLA$USER=bonjour☃env
+0
+HOLAemis=bonjour☃PATH=☃
+
+export HOLA=bonjour=casse-toi☃echo $HOLA
+0
+HOLA=bonjour=casse-toi☃
+
+export "HOLA=bonjour"=casse-toi☃echo $HOLA
+0
+HOLA=bonjour=casse-toi☃
+
+export HOLA=bonjour☃export BYE=casse-toi☃echo $HOLA et $BYE
+0
+bonjour et casse-toi☃
+
+export HOLA=bonjour BYE=casse-toi☃echo $HOLA et $BYE
+0
+bonjour et casse-toi☃
+
+export $HOLA=bonjour☃env
+0
+bonjour=bonjour☃PATH=☃
+
+export HOLA="bonjour      "  ☃echo $HOLA | cat -e
+0
+bonjour$☃
+
+export HOLA="   -n bonjour   "  ☃echo $HOLA
+0
+bonjour$>
+
+export HOLA="bonjour   "/☃echo $HOLA
+0
+bonjour /☃
+
+export HOLA='"'☃echo " $HOLA " | cat -e
+0
+ " $☃
+
+export HOLA=at☃c$HOLA Makefile
+0
+[cela affiche le Makefile]☃
+
+export "" HOLA=bonjour☃env
+1
+HOLA=bonjour☃
+minishell: export: `': not a valid identifier☃
+export HOLA="cat Makefile | grep NAME"  ☃echo $HOLA
+0
+cat Makefile | grep NAME
+
+export HOLA=hey ☃echo $HOLA$HOLA$HOLA=hey$HOLA
+0
+heyheyhey=heyhey
+
+export HOLA="  bonjour  hey  "  ☃echo $HOLA | cat -e
+0
+bonjour hey$
+
+export HOLA="  bonjour  hey  "  ☃echo """$HOLA""" | cat -e
+0
+   bonjour    hey    $
+
+export HOLA="  bonjour  hey  "  ☃echo wesh"$HOLA" | cat -e
+0
+wesh   bonjour    hey    $
+
+export HOLA="  bonjour  hey  "  ☃echo wesh""$HOLA.
+0
+wesh bonjour hey .
+
+export HOLA="  bonjour  hey  "  ☃echo wesh$""HOLA.
+0
+weshHOLA.
+
+export HOLA="  bonjour  hey  "  ☃echo wesh$"HOLA HOLA".
+0
+weshHOLA HOLA.
+
+export HOLA=bonjour☃export HOLA=" hola et $HOLA"☃echo $HOLA
+0
+hola et bonjour
+
+export HOLA=bonjour☃export HOLA=' hola et $HOLA'☃echo $HOLA
+0
+hola et $HOLA
+
+export HOLA=bonjour☃export HOLA=" hola et $HOLA"$HOLA☃echo $HOLA
+0
+hola et bonjourbonjour☃
+
+export HOLA="ls        -l    - a"☃echo $HOLA
+0
+ls -l - a
+
+export HOLA="s -la" ☃l$HOLA
+0
+total
+
+export HOLA="s -la" ☃l""$HOLA""
+127
+
+ls -la: command not found
+export HOLA="s -la" ☃l'$HOLA'
+127
+
+l$HOLA: command not found
+export HOLA="l" ☃$HOLAs
+0
+
+
+export HOLA="l" ☃"$HOLA"s
+0
+minitester.sh☃
+
+export HOL=A=bonjour☃env
+0
+HOL=A=bonjour
+
+export HOLA="l" ☃'$HOLA's
+127
+
+$HOLAs: command not found
+export HOL=A=""☃env
+0
+HOL=A=
+
+export TE+S=T☃env
+1
+
+minishell: export: `TE+S=T': not a valid identifier
+export ""=""
+1
+
+minishell: export: `=': not a valid identifier
+export ''=''
+1
+
+minishell: export: `=': not a valid identifier
+export "="="="
+1
+
+minishell: export: `===': not a valid identifier
+export '='='='
+1
+
+minishell: export: `===': not a valid identifier
+export HOLA=p☃export BYE=w☃$HOLA"BYE"d
+127
+
+pBYEd: command not found
+export HOLA=p☃export BYE=w☃"$HOLA"'$BYE'd
+127
+
+p$BYEd: command not found
+export HOLA=p☃export BYE=w☃"$HOLA""$BYE"d
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester
+
+export HOLA=p☃export BYE=w☃$"HOLA"$"BYE"d
+127
+
+HOLABYEd: command not found
+export HOLA=p☃export BYE=w☃$'HOLA'$'BYE'd
+127
+
+HOLABYEd: command not found
+export HOLA=-n☃""echo $HOLA"" hey
+127
+
+echo -n: command not found
+export A=1 B=2 C=3 D=4 E=5 F=6 G=7 H=8☃echo "$A'$B"'$C"$D'$E'"$F'"'$G'$H"
+0
+1'2$C"$D5"$F'7'8☃
+
+export HOLA=bonjour☃env☃unset HOLA☃env
+0
+PATH=☃
+
+export HOLA=bonjour☃env☃unset HOLA☃unset HOLA☃env
+0
+PATH=☃
+
+unset PATH☃echo $PATH
+0
+☃
+
+unset PATH☃ls
+127
+
+minishell: ls: No such file or directory
+unset ""
+1
+
+minishell: unset: `': not a valid identifier
+unset INEXISTANT
+0
+☃
+
+unset PWD☃env | grep PWD☃pwd
+0
+☃☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd☃unset PWD☃env | grep PWD☃cd $PWD☃pwd
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃☃☃☃/mnt/nfs/homes/emis
+
+unset OLDPWD☃env | grep OLDPWD
+0
+☃
+
+unset 9HOLA
+1
+
+minishell: unset: `9HOLA': not a valid identifier
+unset HOLA9
+0
+☃
+
+unset HOL?A
+1
+
+minishell: unset: `HOL?A': not a valid identifier
+unset HOLA HOL?A
+1
+
+minishell: unset: `HOL?A': not a valid identifier
+unset HOL?A HOLA
+1
+
+minishell: unset: `HOL?A': not a valid identifier
+unset HOL?A HOL.A
+1
+
+minishell: unset: `HOL?A': not a valid identifier☃minishell: unset: `HOL.A': not a valid identifier☃
+unset HOLA=
+1
+
+minishell: unset: `HOLA=': not a valid identifier
+unset HOL\\\\A
+1
+
+minishell: unset: `HOL\\A': not a valid identifier
+unset HOL;A
+127
+
+A: command not found
+unset HOL.A
+1
+
+minishell: unset: `HOL.A': not a valid identifier
+unset HOL+A
+1
+
+minishell: unset: `HOL+A': not a valid identifier
+unset HOL=A
+1
+
+minishell: unset: `HOL=A': not a valid identifier
+unset HOL{A
+1
+
+minishell: unset: `HOL{A': not a valid identifier
+unset HOL}A
+1
+
+minishell: unset: `HOL}A': not a valid identifier
+unset HOL-A
+1
+
+minishell: unset: `HOL-A': not a valid identifier
+unset -HOLA
+2
+
+minishell: unset: -H: invalid option
+unset _HOLA
+0
+☃
+
+unset HOL_A
+0
+☃
+
+unset HOLA_
+0
+☃
+
+unset HOL*A
+1
+
+minishell: unset: `HOL*A': not a valid identifier
+unset HOL#A
+1
+
+minishell: unset: `HOL#A': not a valid identifier
+unset $HOLA
+0
+☃
+
+unset $PWD
+1
+
+minishell: unset: `/mnt/nfs/homes/emis/Documents/minishell42tester': not a valid identifier
+unset HOL@
+1
+
+minishell: unset: `HOL@': not a valid identifier
+unset HOL!A
+1
+
+minishell: !A: event not found
+unset HOL^A
+1
+
+minishell: unset: `HOL^A': not a valid identifier
+unset HOL$?A
+0
+☃
+
+unset HOL\~A
+1
+
+minishell: unset: `HOL~': not a valid identifier
+unset "" HOLA☃env | grep HOLA
+0
+
+minishell: unset: `': not a valid identifier☃☃
+unset PATH☃echo $PATH
+0
+☃
+
+unset PATH☃cat Makefile
+1
+
+minishell: cat: No such file or directory☃
+unset =
+0
+
+minishell: unset: `=': not a valid identifier
+unset ======
+0
+
+minishell: unset: `======': not a valid identifier
+unset ++++++
+0
+
+minishell: unset: `++++++': not a valid identifier
+unset _______
+0
+☃
+
+unset export
+0
+☃
+
+unset echo
+0
+☃
+
+unset pwd
+0
+☃
+
+unset cd
+0
+☃
+
+unset unset
+0
+☃
+
+unset sudo
+0
+☃
+
+export hola | unset hola | echo $?
+0
+0☃
+

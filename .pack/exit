@@ -1,46 +1,184 @@
+exit
+0
+
 exit☃
+exit exit
+2
+
 exit☃minishell: exit: exit: numeric argument required☃
+exit hola
+2
+
 exit☃minishell: exit: hola: numeric argument required☃
+exit hola que tal
+2
+
 exit☃minishell: exit: hola: numeric argument required☃
+exit 42
+42
+
 exit☃
+exit 000042
+42
+
 exit☃
+exit 666
+154
+
 exit☃
+exit 666 666
+1
+
 exit☃minishell: exit: too many arguments☃
+exit -666 666
+1
+
 exit☃minishell: exit: too many arguments☃
+exit hola 666
+2
+
 exit☃minishell: exit: hola: numeric argument required☃
+exit 666 666 666 666
+1
+
 exit☃minishell: exit: too many arguments☃
+exit 666 hola 666
+1
+
 exit☃minishell: exit: too many arguments
+exit hola 666 666
+2
+
 exit☃minishell: exit: hola: numeric argument required☃
+exit 259
+3
+
 exit☃
+exit -4
+252
+
 exit☃
+exit -42
+214
+
 exit☃
+exit -0000042
+214
+
 exit☃
+exit -259
+253
+
 exit☃
+exit -666
+102
+
 exit☃
+exit +666
+154
+
 exit☃
+exit 0
+0
+
 exit☃
+exit +0
+0
+
 exit☃
+exit -0
+0
+
 exit☃
+exit +42
+42
+
 exit☃
+exit -69 -96
+1
+
 exit☃minishell: exit: too many arguments☃
+exit --666
+2
+
 exit☃minishell: exit: --666: numeric argument required☃
+exit ++++666
+2
+
 exit☃minishell: exit: ++++666: numeric argument required☃
+exit ++++++0
+2
+
 exit☃minishell: exit: ++++++0: numeric argument required☃
+exit ------0
+2
+
 exit☃minishell: exit: ------0: numeric argument required☃
+exit "666"
+154
+
 exit☃
+exit '666'
+154
+
 exit☃
+exit '-666'
+102
+
 exit☃
+exit '+666'
+154
+
 exit☃
+exit '----666'
+2
+
 exit☃minishell: exit: ----666: numeric argument required☃
+exit '++++666'
+2
+
 exit☃minishell: exit: ++++666: numeric argument required☃
+exit '6'66
+154
+
 exit☃
+exit '2'66'32'
+8
+
 exit☃
+exit "'666'"
+2
+
 exit☃minishell: exit: '666': numeric argument required☃
+exit '"666"'
+2
+
 exit☃minishell: exit: "666": numeric argument required☃
+exit '666'"666"666
+170
+
 exit☃
+exit +'666'"666"666
+170
+
 exit☃
+exit -'666'"666"666
+86
+
 exit☃
+exit 9223372036854775807
+255
+
 exit☃
+exit 9223372036854775808
+2
+
 exit☃minishell: exit: 9223372036854775808: numeric argument required☃
+exit -9223372036854775808
+0
+
 exit☃
+exit -9223372036854775809
+2
+
 exit☃minishell: exit: -9223372036854775809: numeric argument required☃

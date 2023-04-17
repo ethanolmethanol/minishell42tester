@@ -1,0 +1,272 @@
+pwd && ls
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃minitester.sh☃
+
+pwd || ls
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+echo hola || echo bonjour
+0
+hola☃
+
+echo hola && echo bonjour
+0
+hola☃bonjour☃
+
+echo bonjour || echo hola
+0
+bonjour☃
+
+echo bonjour && echo hola
+0
+bonjour☃hola☃
+
+echo -n bonjour && echo -n hola
+0
+bonjourhola
+
+pwd && ls && echo hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃minitester.sh☃hola☃
+
+pwd || ls && echo hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃hola☃
+
+pwd && ls || echo hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃minitester.sh☃
+
+pwd || ls || echo hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+ls || export ""
+0
+minitester.sh☃
+
+export "" || ls
+0
+minitester.sh☃
+minishell: export: `': not a valid identifier☃
+ls && export ""
+1
+minitester.sh☃
+minishell: export: `': not a valid identifier☃
+export "" && ls
+1
+
+minishell: export: `': not a valid identifier☃
+ls || ;
+2
+
+minishell: syntax error near☃unexpected token `;'☃
+; || ls
+2
+
+minishell: syntax error near☃unexpected token `;'☃
+ls && ;
+2
+
+minishell: syntax error near☃unexpected token `;'☃
+; && ls
+2
+
+minishell: syntax error near☃unexpected token `;'☃
+ls || <
+2
+
+minishell: syntax error near unexpected token `newline'☃
+ls && <
+2
+
+minishell: syntax error near unexpected token `newline'☃
+cat | echo || ls
+0
+☃☃
+
+cat | echo && ls
+0
+☃☃minitester.sh☃
+
+ls || cat | echo
+0
+minitester.sh☃
+
+ls && cat | echo
+0
+minitester.sh☃☃☃
+
+export "" && unset ""
+1
+
+minishell: export: `': not a valid identifier
+(ls)
+0
+minitester.sh☃
+
+( ( ls ) )
+0
+minitester.sh☃
+
+( ( ) ls )
+2
+
+minishell: syntax error near unexpected token `)'☃
+ls && (ls)
+0
+minitester.sh☃minitester.sh☃
+
+(ls && pwd)
+0
+minitester.sh☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+( ( ls&&pwd ) )
+0
+minitester.sh☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+( ( ls ) &&pwd )
+0
+minitester.sh☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+(ls && ( ( pwd ) ) )
+0
+minitester.sh☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+(ls && pwd) > hola☃cat hola
+0
+crashtest.c☃Docs☃Dockers☃Drawings☃Makefile☃minishell☃philosophers☃srcs☃test.c☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+> hola ls && pwd
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+> hola (ls && pwd)
+2
+
+minishell: syntax error near unexpected token `('☃
+(> pwd)☃ls☃rm pwd
+0
+logfile.txt☃
+
+(< pwd)☃ls
+0
+logfile.txt☃
+minishell: pwd: No such file or directory☃
+(< pwd)
+1
+
+minishell: pwd: No such file or directory☃
+( ( ( ( ( pwd) ) ) ) )
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+() pwd
+2
+
+minishell: syntax error near unexpected token `)'☃
+> pwd (ls)
+2
+
+minishell: syntax error near unexpected token `('☃
+(ls||pwd)&&(ls||pwd)
+0
+logfile.txt☃logfile.txt☃
+
+(lss||pwd)&&(lss||pwd)
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+lss: command not found☃lss: command not found☃
+(lss&&pwd)&&(lss&&pwd)
+127
+
+lss: command not found☃
+(ls && pwd | wc) > hola☃cat hola
+0
+crashtest.c☃Docs☃Dockers☃Drawings☃Makefile☃minishell☃philosophers☃srcs☃test.c☃      1       1      34☃
+
+(ls && pwd | wc) > hola☃(ls && pwd | wc) > hola☃cat hola
+0
+crashtest.c☃Docs☃Dockers☃Drawings☃Makefile☃minishell☃philosophers☃srcs☃test.c☃      1       1      34☃
+
+(ls && pwd | wc) >> hola☃echo hey&&(ls && pwd | wc) > hola☃cat hola
+0
+hey☃☃crashtest.c☃Docs☃[...]☃srcs☃test.c☃      1       1      34☃crashtest.c☃Docs☃[...]☃srcs☃test.c☃      1       1      34☃
+
+(pwd | wc) < hola
+0
+      1       1      34☃
+
+(ls && pwd | wc) < hola
+0
+logfile.txt☃      1       1      34☃
+
+(ls -z || pwd | wc) < hola
+0
+      1       1      34☃
+ls: invalid option -- 'z'☃
+echo hey > hola☃(pwd | wc) < hola
+0
+      1       1      34☃
+
+echo hey > hola☃(ls && pwd | wc) < hola
+0
+logfile.txt☃      1       1      34☃
+
+echo hey > hola☃(ls -z || pwd | wc) < hola
+0
+      1       1      34☃
+ls: invalid option -- 'z'☃
+(ls -z || pwd && ls)
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃logfile.txt☃
+ls: invalid option -- 'z'☃
+ls || (cat Makefile|grep srcs) && (pwd|wc)
+0
+logfile.txt☃      1       1      34☃
+
+ls -z && (ls) && (pwd)
+2
+
+ls: invalid option -- 'z'☃
+(ls > hey && pwd) > hola☃cat hola☃cat hey
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃☃crashtest.c☃Docs☃[...]☃srcs☃test.c☃
+
+ls > hey && pwd > hola☃cat hola☃cat hey☃rm hola hey
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃☃crashtest.c☃Docs☃[...]☃srcs☃test.c☃
+
+cd ../.. && pwd && pwd
+0
+/mnt/nfs/homes/emis/☃/mnt/nfs/homes/emis/☃
+
+(cd ../.. && pwd) && pwd
+0
+/mnt/nfs/homes/emis/☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+ls -z || cd ../../..&&pwd☃pwd
+0
+/mnt/nfs/homes/emis☃☃/mnt/nfs/homes/emis☃
+
+ls -z || (cd ../../..&&pwd)☃pwd
+0
+/mnt/nfs/homes/emis☃☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd &&
+2
+
+minishell: syntax error near unexpected token `&&'
+pwd ||
+2
+
+minishell: syntax error near unexpected token `||'
+&& pwd
+2
+
+minishell: syntax error near unexpected token `&&'
+|| pwd
+2
+
+minishell: syntax error near unexpected token `||'

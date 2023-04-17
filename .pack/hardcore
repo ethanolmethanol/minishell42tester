@@ -1,0 +1,28 @@
+echo lol > /dev/full
+1
+
+echo: write error: No space left on device
+echo -n > /dev/full
+0
+
+
+env > /dev/full
+1
+
+env: write error: No space left on device
+pwd > /dev/full
+1
+
+pwd: write error: No space left on device
+export > /dev/full
+1
+
+export: write error: No space left on device
+export CDPATH="/" && cd tmp > /dev/full
+1
+
+cd: write error: No space left on device
+<<here>hola cat -e>/dev/stdout</dev/stdin☃lol☃here☃cat hola☃rm hola
+0
+lol$
+

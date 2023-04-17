@@ -1,19 +1,76 @@
 cat << hola☃$HOME☃hola
+0
+/mnt/nfs/homes/emis☃
+
 cat << 'hola'☃$HOME☃hola
+0
+$HOME☃
+
 cat << "hola"☃$HOME☃hola
+0
+$HOME☃
+
 cat << ho"la"☃$HOME☃hola
+0
+$HOME☃
+
 cat << $HOME☃prout☃/mnt/nfs/homes/emis☃$HO☃$HOME
+0
+prout☃/mnt/nfs/homes/emis☃$HO☃
+
 cat << hola > bonjour☃prout☃bruh☃mini tester☃hola☃cat bonjour☃rm bonjour
+0
+prout☃bruh☃mini tester☃
+
 cat << hola | rev☃prout☃bruh☃mini tester☃hola
+0
+tuorp☃hurb☃retset inim☃
+
 << hola☃chola☃holache☃     hola☃"hola"☃'hola'☃hola
+0
+☃
+
 <<hola☃☃☃hola
+0
+☃
+
 cat <<
+2
+
+minishell: syntax error near unexpected token `newline'☃
 cat << prout << lol << koala☃prout☃lol☃koala☃
+0
+
+
 prout << lol << cat << koala☃prout☃lol☃cat☃koala☃
+127
+
+prout: command not found
 << $hola☃$hola☃
+0
+☃
+
 << $"hola"$"b"☃holab☃
+0
+☃
+
 << $"$hola"$$"b"☃$hola$$b☃
+0
+☃
+
 << ho$la$"$a"$$"b"☃hola$a$$b☃ho$la$a$$b☃
+0
+☃
+
 echo hola <<< bonjour
+0
+hola☃
+
 echo hola <<<< bonjour
+2
+
+minishell: syntax error near unexpected token `<'☃
 echo hola <<<<< bonjour
+2
+
+minishell: syntax error near unexpected token `<<'☃

@@ -1,106 +1,424 @@
 echo hola > bonjour☃cat bonjour
+0
+hola☃
+
 echo que tal >> bonjour☃cat bonjour
+0
+hola☃que tal☃
+
 echo hola > bonjour☃echo que tal >> bonjour☃cat < bonjour
+0
+☃☃hola☃que tal☃
+
 echo hola > bonjour☃rm bonjour☃echo que tal >> bonjour☃cat < bonjour
+0
+que tal☃
+
 echo hola que tal > bonjour☃cat bonjour
+0
+hola que tal☃
+
 echo hola que tal > /tmp/bonjour☃cat -e /tmp/bonjour☃rm /tmp/bonjour
+0
+hola que tal$☃
+
 export HOLA=hey☃echo bonjour > $HOLA☃echo $HOLA
+0
+☃hola☃
+
 whereis grep > bonjour☃cat bonjour
+0
+grep: /usr/bin/grep /usr/share/man/man1/grep.1.gz /usr/share/man/man1/grep.1posix.gz /usr/share/info/grep.info.gz☃
+
 ls -la > bonjour☃cat bonjour
+0
+total 16☃drwx------  2 emis [...] .☃drwxrwxewt 51 root     [...] ..☃-rwxr-xr-x  8 emis [...] crashtest.c☃[...]☃
+
 pwd>bonjour☃cat bonjour
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
 pwd >                     bonjour☃cat bonjour
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
 echo hola > > bonjour
+2
+
+minishell: syntax error near unexpected token `>'☃
 echo hola < < bonjour
+2
+
+minishell: syntax error near unexpected token `<'☃
 echo hola >>> bonjour
+2
+
+minishell: syntax error near unexpected token `>'☃
 > bonjour echo hola☃cat bonjour
+0
+hola☃
+
 > bonjour | echo hola☃cat bonjour
+0
+hola☃☃
+
 prout hola > bonjour☃ls
+127 0
+☃bonjour [...]
+minishell: prout: command not found☃
 echo hola > hello >> hello >> hello☃ls☃cat hello
+0
+☃hello☃☃hola☃
+
 echo hola > hello >> hello >> hello☃echo hola >> hello☃cat < hello
+0
+hola☃hola☃
+
 echo hola > hello >> hello >> hello☃echo hola >> hello☃echo hola > hello >> hello >> hello☃cat < hello
+0
+hola☃
+
 echo hola >> hello >> hello > hello☃echo hola >> hello☃cat < hello
+0
+hola☃hola☃
+
 echo hola >> hello >> hello > hello☃echo hola >> hello☃echo hola >> hello >> hello > hello☃cat < hello
+0
+hola☃
+
 echo hola > hello☃echo hola >> hello >> hello >> hello☃echo hola >> hello☃cat < hello
+0
+hola☃hola☃hola☃
+
 echo hola > hello☃echo hey > bonjour☃echo <bonjour <hello
+0
+☃
+
 echo hola > hello☃echo hey > bonjour☃echo <hello <bonjour
+0
+☃
+
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃echo hola > bonjour > hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃echo hola > bonjour > hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃echo hola > bonjour >> hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃echo hola > bonjour > hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃echo hola > bonjour > hello >> bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃echo hola > bonjour > hello >> bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃echo hola >> bonjour > hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃echo hola >> bonjour > hello > bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃echo hola >> bonjour >> hello >> bonjour☃cat bonjour☃cat hello
+0
+hola☃☃
+
 echo hola > bonjour☃echo hey > hello☃echo hola >> bonjour >> hello >> bonjour☃cat bonjour☃cat hello
+0
+hola☃hola☃☃hey☃
+
 > bonjour echo hola bonjour☃cat bonjour
+0
+bonjour hola☃
+
 >bonjour echo > hola>bonjour>hola>>bonjour>hola hey >bonjour hola >hola☃cat bonjour☃cat hola
+0
+☃☃hey hola☃
+
 echo bonjour > hola1☃echo hello > hola2☃echo 2 >hola1 >> hola2☃ls☃cat hola1☃cat hola2
+0
+hola1  hola2  [...]☃☃☃hello☃2☃
+
 echo bonjour > hola1☃echo hello > hola2☃echo 2 >>hola1 > hola2☃ls☃cat hola1☃cat hola2
+0
+hola1  hola2  [...]☃☃bonjour☃☃2☃
+
 > pwd☃ls
+0
+pwd☃
+
 < pwd
+1
+
+minishell: pwd: No such file or directory☃
 < Makefile .
+1
+
+.: not enough arguments☃
 cat <pwd
+1
+
+minishell: pwd: No such file or directory☃
 cat <srcs/pwd
+1
+
+minishell: srcs/pwd: No such file or directory☃
 cat <../pwd
+1
+
+minishell: ../pwd: No such file or directory☃
 cat >>
+2
+
+minishell: syntax error near unexpected token `newline'☃
 cat >>>
+2
+
+minishell: syntax error near unexpected token `>'☃
 cat >> <<
+2
+
+minishell: syntax error near unexpected token `<<'☃
 cat >> > >> << >>
+2
+
+minishell: syntax error near unexpected token `>'☃
 cat < ls
+1
+
+minishell: ls: No such file or directory☃
 cat < ls > ls
+1
+
+minishell: ls: No such file or directory☃
 cat > ls1 < ls2☃ls
+0
+☃ls1  [...]☃
+minishell: ls2: No such file or directory☃
 >>hola☃cat hola
+0
+
+
 echo hola > bonjour☃cat < bonjour
+0
+hola☃
+
 echo hola >bonjour☃cat <bonjour
+0
+hola☃
+
 echo hola>bonjour☃cat<bonjour
+0
+hola☃
+
 echo hola> bonjour☃cat< bonjour
+0
+hola☃
+
 echo hola               >bonjour☃cat<                     bonjour
+0
+hola☃
+
 echo hola          >     bonjour☃cat            <         bonjour
+0
+hola☃
+
 mkdir srcs☃echo hola > srcs/bonjour☃cat < srcs/bonjour
+0
+hola☃
+
 echo hola >srcs/bonjour☃cat <srcs/bonjour
+0
+hola☃
+
 echo hola > bonjour☃echo que tal >> bonjour☃cat < bonjour
+0
+hola☃que tal☃
+
 echo hola > bonjour☃rm bonjour☃echo que tal >> bonjour☃cat < bonjour
+0
+que tal☃
+
 e'c'"h"o hola > bonjour☃cat 'bo'"n"jour
+0
+hola☃
+
 echo hola > bonjour\ 1☃ls☃cat bonjour\ 1
+0
+bonjour 1' [...]☃☃hola☃
+
 echo hola > bonjour hey☃ls☃cat bonjour☃cat hey
+1
+bonjour [...]☃☃hola hey☃☃cat: hey: No such file or directory☃
+
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>srcs/bonjour >srcs/hello <prout☃cat srcs/bonjour srcs/hello
+0
+☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃rm srcs/bonjour srcs/hello☃>srcs/bonjour >srcs/hello <prout☃ls srcs☃cat srcs/bonjour srcs/hello
+0
+☃bonjour  hello☃☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>srcs/bonjour <prout >srcs/hello ☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃rm srcs/bonjour srcs/hello☃>srcs/bonjour <prout >srcs/hello ☃ls srcs☃cat srcs/bonjour
+0
+☃bonjour☃☃
+minishell: prout: No such file or directory☃
 echo hola > ../bonjour☃echo hey > ../hello☃>../bonjour >../hello <prout☃cat ../bonjour ../hello
+0
+☃
+minishell: prout: No such file or directory☃
 echo hola > ../bonjour☃echo hey > ../hello☃rm ../bonjour ../hello☃>../bonjour >../hello <prout☃ls ..☃cat ../bonjour ../hello
+0
+☃bonjour  hello☃☃
+minishell: prout: No such file or directory☃
 echo hola > ../bonjour☃echo hey > ../hello☃>../bonjour <prout >../hello ☃cat ../bonjour ☃cat ../hello
+0
+☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > ../bonjour☃echo hey > ../hello☃rm ../bonjour ../hello☃>../bonjour <prout >../hello ☃ls ..☃cat ../bonjour
+0
+☃bonjour☃☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>srcs/bonjour >>srcs/hello <prout☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>>srcs/bonjour >srcs/hello <prout☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃bonjour☃☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>>srcs/bonjour >>srcs/hello <prout☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃bonjour☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>srcs/bonjour <prout >>srcs/hello☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>>srcs/bonjour <prout >srcs/hello☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃bonjour☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃>>srcs/bonjour <prout >>srcs/hello☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃bonjour☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > srcs/bonjour☃echo hey > srcs/hello☃<prout >>srcs/bonjour >>srcs/hello☃cat srcs/bonjour ☃cat srcs/hello
+0
+☃bonjour☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > bonjour☃echo hey > hello☃<bonjour >hello☃cat bonjour ☃cat hello
+0
+hola☃☃>>
+
 echo hola > bonjour☃echo hey > hello☃>bonjour >hello < prout☃cat bonjour ☃cat hello
+0
+☃☃
+minishell: prout: No such file or directory☃
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃>bonjour >hello < prout☃cat bonjour ☃cat hello
+0
+☃☃
+minishell: prout: No such file or directory☃
 echo hola > bonjour☃echo hey > hello☃>bonjour <prout hello☃cat bonjour ☃cat hello
+0
+☃☃hey☃
+minishell: prout: No such file or directory☃
 echo hola > bonjour☃echo hey > hello☃rm bonjour hello☃>bonjour <prout hello☃cat bonjour 
+0
+☃
+minishell: prout: No such file or directory☃
 echo hola > bonjour☃<bonjour cat | wc > bonjour☃cat bonjour
+0
+      0       0       0☃
+
 rm -f bonjour☃rm bonjour > bonjour☃ls -l bonjour
+2
+
+ls: cannot access 'bonjour': No such file or directory
 export HOLA="bonjour hello"☃>$HOLA☃ls
+0
+'bonjour hello' [...]☃
+
 export HOLA="bonjour hello"☃>"$HOLA"☃ls
+0
+'bonjour hello' [...]☃
+
 export HOLA="bonjour hello"☃>$"HOLA"☃ls
+0
+HOLA [...]☃
+
 export HOLA="bonjour hello"☃>$HOLA>hey☃ls
+0
+'bonjour hello' hey [...]☃
+
 export HOLA="bonjour hello"☃>hey>$HOLA☃ls
+0
+'bonjour hello' hey [...]☃
+
 export HOLA="bonjour hello"☃>hey>$HOLA>hey>hey☃ls
+0
+'bonjour hello' hey [...]☃
+
 export A=hey☃export A B=Hola D E C="Que Tal"☃echo $PROUT$B$C > a > b > c☃cat a☃cat b☃cat c
+0
+☃☃☃HolaQue Tal☃
+
 echo "Amour Tu es Horrible" > a☃echo "0123456789" > b☃echo "Prout" > c☃
+0
+
+
 <a cat <b <c
+0
+Prout☃
+
 <a cat <b <c☃cat a☃cat b☃cat c
+0
+☃☃☃Amour Tu es Horrible☃0123456789☃Prout☃
+
 >a ls >b >>c >d☃cat a☃cat b☃cat c☃cat d
+0
+☃☃☃Prout☃☃crashtest.c☃Docs☃[...]☃test.c☃
+
 >a ls >b >>c >d☃cat a☃cat b☃cat c☃cat d
+0
+☃☃☃Prout☃☃crashtest.c☃Docs☃[...]☃test.c☃
+
 echo hola > a > b > c☃cat a☃cat b☃cat c
+0
+☃☃hola☃
+
 mkdir dir☃ls -la > dir/bonjour☃cat dir/bonjour
+0
+total 16☃drwx------  2 emis [...] .☃drwxrwxewt 51 root     [...] ..☃[...]☃
+
 <a☃cat a
+0
+Amour Tu es Horrible☃
+
 >d cat <a >>e☃cat a☃cat d☃cat e
+0
+☃Amour☃☃Amour☃
+
 < a > b cat > hey >> d☃cat d☃ls
+0
+Amour Tu Es Horrible☃☃[...] a b hey d
+
 rm -rf a b c d e hey hola* HOLA bonjour* dir srcs ls1 pwd
+0
+
+

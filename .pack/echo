@@ -1,0 +1,479 @@
+echo
+0
+☃
+
+echo -n
+0
+
+
+echo Hola
+0
+Hola☃
+
+echoHola
+127
+☃
+echoHola: command not found
+echo-nHola
+127
+☃
+echo-nHola: command not found
+echo -n Hola
+0
+Hola
+
+echo "-n" Hola
+0
+Hola
+
+echo -nHola
+0
+-nHola☃
+
+echo Hola -n
+0
+Hola -n☃
+
+echo Hola Que Tal
+0
+Hola Que Tal☃
+
+echo         Hola
+0
+Hola☃
+
+echo    Hola     Que    Tal
+0
+Hola Que Tal☃
+
+echo      \n hola
+0
+n hola☃
+
+echo "         " | cat -e
+0
+         $☃
+
+echo           | cat -e
+0
+$☃
+
+""''echo hola""'''' que""'' tal""''
+0
+hola que tal☃
+
+echo -n -n
+0
+
+
+echo -n -n Hola Que
+0
+Hola Que
+
+echo -p
+0
+-p☃
+
+echo -nnnnn
+0
+
+
+echo -n -nnn -nnnn
+0
+
+
+echo -n-nnn -nnnn
+0
+-n-nnn -nnnn☃
+
+echo -n -nnn hola -nnnn
+0
+hola -nnnn
+
+echo -n -nnn-nnnn
+0
+-nnn-nnnn
+
+echo --------n
+0
+--------n☃
+
+echo -nnn --------n
+0
+--------n
+
+echo -nnn -----nn---nnnn
+0
+-----nn---nnnn
+
+echo -nnn --------nnnn
+0
+--------nnnn
+
+echo $
+0
+$☃
+
+echo $?
+0
+0☃
+
+echo $?$
+0
+0$☃
+
+echo $? | echo $? | echo $?
+0
+0☃
+
+echo $:$= | cat -e
+0
+$:$=$☃
+
+echo " $ " | cat -e
+0
+ $ $☃
+
+echo ' $ ' | cat -e
+0
+ $ $☃
+
+echo $HOME
+0
+/mnt/nfs/homes/emis☃
+
+echo \$HOME
+0
+$HOME☃
+
+echo my shit terminal is [$TERM]
+0
+my shit terminal is [xterm-256color]☃
+
+echo my shit terminal is [$TERM4
+0
+my shit terminal is [☃
+
+echo my shit terminal is [$TERM4]
+0
+my shit terminal is []☃
+
+echo $UID
+0
+1000☃
+
+echo $HOME9
+0
+☃
+
+echo $9HOME
+0
+HOME☃
+
+echo $HOME%
+0
+/mnt/nfs/homes/emis%☃
+
+echo $UID$HOME
+0
+1000/mnt/nfs/homes/emis%☃
+
+echo Le path de mon HOME est $HOME
+0
+Le path de mon HOME est /mnt/nfs/homes/emis☃
+
+echo $USER$var\$USER$USER\$USERtest$USER
+0
+emis$USERemis$USERtestemis☃
+
+echo $hola*
+0
+☃
+
+echo -nnnn $hola
+0
+
+
+echo > <
+2
+☃
+syntax error near unexpected token `<'
+echo | |
+2
+☃
+syntax error near unexpected token `|'
+EechoE
+127
+☃
+EechoE: command not found
+.echo.
+127
+☃
+.echo.: command not found
+>echo>
+2
+☃
+syntax error near unexpected token `newline'
+<echo<
+2
+☃
+syntax error near unexpected token `newline'
+>>echo>>
+2
+☃
+syntax error near unexpected token `newline'
+|echo|
+2
+☃
+syntax error near unexpected token `|'
+|echo -n hola
+2
+☃
+syntax error near unexpected token `|'
+echo *
+0
+minitester.sh☃
+
+echo '*'
+0
+*☃
+
+echo minit*
+0
+minitester.sh☃
+
+echo *Z
+0
+*Z☃
+
+echo *h hola
+0
+minitester.sh hola☃
+
+echo *h
+0
+minitester.sh☃
+
+echo $*
+0
+☃
+
+echo hola*hola *
+0
+hola*hola☃
+
+echo $hola*
+0
+minitester.sh☃
+
+echo $HOME*
+0
+/mnt/nfs/homes/emis☃
+
+echo ""$
+0
+$☃
+
+echo $""
+0
+☃
+
+echo "$"""
+0
+$☃
+
+echo '$'''
+0
+$☃
+
+echo $"HOME"
+0
+HOME☃
+
+echo $''HOME
+0
+HOME☃
+
+echo $""HOME
+0
+HOME☃
+
+echo "$HO"ME
+0
+ME☃
+
+echo '$HO'ME
+0
+$HOME☃
+
+echo "$HO""ME"
+0
+ME☃
+
+echo '$HO''ME'
+0
+$HOME☃
+
+echo "'$HO''ME'"
+0
+''ME'☃
+
+echo ""$HOME
+0
+/mnt/nfs/homes/emis☃
+
+echo "" $HOME
+0
+ /mnt/nfs/homes/emis☃
+
+echo ''$HOME
+0
+/mnt/nfs/homes/emis☃
+
+echo '' $HOME
+0
+ /mnt/nfs/homes/emis☃
+
+echo $"HO""ME"
+0
+HOME☃
+
+echo $'HO''ME'
+0
+HOME☃
+
+echo $'HOME'
+0
+HOME☃
+
+echo "$"HOME
+0
+$HOME☃
+
+echo $=HOME
+0
+$=HOME☃
+
+echo $"HOLA"
+0
+HOLA☃
+
+echo $'HOLA'
+0
+HOLA☃
+
+echo $DONTEXIST Hola
+0
+Hola☃
+
+echo "hola"
+0
+hola☃
+
+echo 'hola'
+0
+hola☃
+
+echo ''hola''
+0
+hola☃
+
+echo ''h'o'la''
+0
+hola☃
+
+echo "''h'o'la''"
+0
+'h'o'la''☃
+
+echo "'"h'o'la"'"
+0
+hola'☃
+echo'hola': command not found
+echo"'hola'"
+127
+☃
+
+echo "'hola'"
+0
+'hola'☃
+
+echo '"hola"'
+0
+"hola"☃
+
+echo '''ho"''''l"a'''
+0
+ho"l"a☃
+
+echo hola""""""""""""
+0
+hola☃
+
+echo hola"''''''''''"
+0
+hola''''''''''☃
+
+echo hola''''''''''''
+0
+hola☃
+
+echo hola'""""""""""'
+0
+hola""""""""""☃
+echo hola: command not found
+e"cho hola"
+127
+☃
+echo hola: command not found
+e'cho hola'
+127
+☃
+
+echo "hola     " | cat -e
+0
+hola     $☃
+
+echo ""hola
+0
+hola☃
+
+echo "" hola
+0
+ hola☃
+
+echo ""             hola
+0
+ hola☃
+
+echo ""hola
+0
+hola☃
+
+echo "" hola
+0
+ hola☃
+
+echo hola""bonjour
+0
+holabonjour☃
+
+"e"'c'ho 'b'"o"nj"o"'u'r
+0
+bonjour☃
+e'c'ho 'b'onjo'u'r: command not found
+""e"'c'ho 'b'"o"nj"o"'u'r"
+127
+☃
+
+echo "$DONTEXIST"Makefile
+0
+Makefile☃
+
+echo "$DONTEXIST""Makefile"
+0
+Makefile☃
+
+echo "$DONTEXIST" "Makefile"
+0
+ Makefile☃

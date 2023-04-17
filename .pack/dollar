@@ -1,10 +1,40 @@
+$?
+127
+
 0: command not found☃
+$?$?
+127
+
 00: command not found☃
+?$HOME
+127
+
 ?/mnt/nfs/homes/emis: command not found☃
+$
+127
+
 $: command not found☃
+$HOME
+126
+
 /mnt/nfs/homes/emis: Is a directory☃
+$HOMEdskjhfkdshfsd
+0
+
+
+"$HOMEdskjhfkdshfsd"
+127
 
 : command not found☃
+'$HOMEdskjhfkdshfsd'
+127
+
 $HOMEdskjhfkdshfsd: command not found☃
+$DONTEXIST
+0
+
+
+$LESS$VAR
+127
 
 -R: command not found☃

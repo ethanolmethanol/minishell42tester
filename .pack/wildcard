@@ -1,0 +1,24 @@
+ls *
+0
+minitester.sh☃
+
+ls *.*
+0
+ignore_rl_leaks.supp☃logfile.txt☃minitester.sh☃README.md☃
+
+ls *.hola
+2
+
+ls: cannot access '*.hola': No such file or directory☃
+cat .*es*re
+0
+syntax;☃
+
+cat .*es*are
+1
+
+cat: '.*es*are': No such file or directory
+cat .*es*re
+0
+syntax;☃
+

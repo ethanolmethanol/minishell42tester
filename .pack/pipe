@@ -1,56 +1,224 @@
 cat | cat | cat | ls
+0
+minitester.sh☃☃☃☃
+
 ls | exit
+0
+
+
 ls | exit 42
+42
+
+
 exit | ls
+0
+minitester.sh☃
+
 echo hola > bonjour☃exit | cat -e bonjour
+0
+hola$☃
+
 echo hola > bonjour☃cat -e bonjour | exit☃rm bonjour
+0
+
+
 echo | echo
+0
+☃
+
 echo hola | echo que tal
+0
+que tal☃
+
 pwd | echo hola
+0
+hola☃
+
 env | echo hola
+0
+hola☃
+
 echo oui | cat -e
+0
+oui$☃
+
 echo oui | echo non | echo hola | grep oui
+1
+
+
 echo oui | echo non | echo hola | grep non
+1
+
+
 echo oui | echo non | echo hola | grep hola
+0
+hola☃
+
 echo hola | cat -e | cat -e | cat -e
+0
+hola$$$☃
+
 cd .. | echo "hola"
+0
+hola☃
+
 cd / | echo "hola"
+0
+hola☃
+
 cd .. | pwd
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
 ifconfig | grep ":"
+0
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500☃   ether 02:42:27:cf:95:49  txqueuelen 0  (Ethernet)☃[...]☃
+
 ifconfig | grep hola
+1
+
+
 whoami | grep $USER
+0
+emis☃
+
 whoami | grep $USER > /tmp/bonjour☃cat /tmp/bonjour
+0
+emis☃
+
 whoami | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour
+0
+emis$$☃
+
 whereis ls | cat -e | cat -e > /tmp/bonjour☃cat /tmp/bonjour☃rm /tmp/bonjour
+0
+ls: /usr/bin/ls /usr/share/man/man1/ls.1posix.gz /usr/share/man/man1/ls.1.gz$$☃
+
 rm -f hola☃ls | hola
+127
+
+hola: command not found☃
 ls | ls hola
+2
+
+ls: cannot access 'hola': No such file or directory☃
 ls | ls | hola
+127
+
+hola: command not found☃
 ls | hola | ls
+0
+minitester.sh
+hola: command not found☃
 ls | ls | hola | rev
+0
+
+hola: command not found☃
 ls | ls | echo hola | rev
+0
+aloh☃
+
 ls -la | grep "."
+0
+total 16☃drwx------  2 emis [...] .☃drwxrwxewt 51 root     [...] ..☃-rwxr-xr-x  8 emis [...] crashtest.c☃[...]☃
+
 ls -la | grep "'.'"
+1
+
+
 echo test.c | cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e| cat -e|cat -e|cat -e|cat -e
+0
+test.c$$$$$$$$$$$☃
+
 ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls|ls
+0
+minitester.sh☃
+
 echo hola | cat | cat | cat | cat | cat | grep hola
+0
+hola☃
+
 echo hola | cat
+0
+hola☃
+
 echo hola| cat
+0
+hola☃
+
 echo hola |cat
+0
+hola☃
+
 echo hola|cat
+0
+hola☃
+
 echo hola || cat
+0
+hola☃
+
 echo hola ||| cat
+2
+
+minishell: syntax error near☃unexpected token `|'☃
 ech|o hola | cat
+0
+
+ech: command not found☃o: command not found☃
 cat .testignore | cat -e | cat -e
+0
+$$☃
+
 cat .testignore | grep syntax | cat -e
+0
+syntax;☃
+
 cat .testignore | grep syntax | grep syntax | cat -e
+0
+syntax;☃
+
 cat .testignore | grep pr | head -n 5 | cd file_not_exist
+1
+
+minishell: cd: file_not_exist: No such file or directory☃
 cat .testignore | grep pr | head -n 5 | hello
+127
+
+hello: command not found☃
 export HOLA=bonjour | cat -e | cat -e
+0
+
+
 unset HOLA | cat -e
+0
+
+
 export HOLA | echo hola☃env | grep PROUT
+1
+hola☃☃
+
 export | echo hola
+0
+hola☃
+
 sleep 1 | sleep 1
+0
+
+
 time sleep 1 | sleep 1
+0
+real0m3.002s☃user0m0.003s☃sys0m0.001s☃
+
 sleep 1 | exit
+0
+
+
 exit | sleep 1
+0
+
+
 echo hola > a☃>>b echo que tal☃cat a | <b cat | cat > c | cat ☃rm a b c
+0
+
+

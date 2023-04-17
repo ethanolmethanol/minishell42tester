@@ -1,0 +1,284 @@
+pwd
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd ./hola
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd hola que tal
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd -p
+2
+
+pwd: -p: invalid option☃
+pwd --p
+2
+
+pwd: --: invalid option☃
+pwd ---p
+2
+
+pwd: --: invalid option☃
+pwd -- p
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd pwd pwd
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd ls
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+pwd ls env
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+cd
+0
+
+
+cd .
+0
+
+
+cd ./
+0
+
+
+cd ./././.
+0
+
+
+cd ././././
+0
+
+
+cd ..
+0
+
+
+cd ../
+0
+
+
+cd ../..
+0
+
+
+cd ../.
+0
+
+
+cd .././././.
+0
+
+
+cd srcs
+0
+
+
+cd srcs objs
+1
+
+cd: too many arguments☃
+cd 'srcs'
+0
+
+
+cd "srcs"
+0
+
+
+cd '/etc'
+0
+
+
+cd /e'tc'
+0
+
+
+cd /e"tc"
+0
+
+
+cd sr
+1
+
+cd: sr: No such file or directory☃
+cd Makefile
+1
+
+cd: Makefile: Not a directory☃
+cd ../minishell
+0
+
+
+cd ../../../../../../..
+0
+
+
+cd .././../.././../bin/ls
+1
+
+cd: .././../.././../bin/ls: No such file or directory☃
+cd /
+0
+
+
+cd '/'
+0
+
+
+cd //☃pwd
+0
+//☃
+
+cd '//'☃pwd
+0
+//☃
+
+cd ///☃pwd
+0
+/☃
+
+cd ////////☃pwd
+0
+/☃
+
+cd '////////'☃pwd
+0
+/☃
+
+cd /minishell
+1
+
+cd: /minishell: No such file or directory☃
+cd /☃cd ..
+0
+
+
+cd _
+1
+
+cd: _: No such file or directory☃
+cd -
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+cd --
+0
+
+
+cd ---
+2
+
+cd: --: invalid option☃
+cd $HOME
+0
+
+
+cd $HOME $HOME
+1
+
+cd: too many arguments☃
+cd $HOME/Documents
+0
+
+
+cd "$PWD/srcs"
+0
+
+
+cd '$PWD/srcs'
+1
+
+cd: $PWD/srcs: No such file or directory☃
+unset HOME☃cd $HOME
+1
+
+cd: HOME not set☃
+unset HOME☃export HOME=☃cd
+0
+
+
+unset HOME☃export HOME☃cd
+1
+
+cd: HOME not set☃
+cd minishell Docs crashtest.c
+1
+
+cd: too many arguments☃
+   cd / | echo $?☃pwd
+0
+0☃
+
+cd ~
+0
+
+
+cd ~/
+0
+
+
+cd ~/ | echo $?☃pwd
+0
+0☃
+
+cd *
+0
+
+
+cd *
+1
+
+cd: minishell: No such file or directory☃
+cd *
+1
+
+cd: too many arguments☃
+rm a☃mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃cd ..
+1
+
+chdir: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory☃
+mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃pwd
+1
+
+pwd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory☃
+mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃echo $PWD☃echo $OLDPWD
+0
+/mnt/nfs/homes/emis/Documents/minishell42tester/a/b☃☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+mkdir a☃mkdir a/b☃cd a/b☃rm -r ../../a☃cd☃echo $PWD☃echo $OLDPWD
+0
+/home☃☃/mnt/nfs/homes/emis/Documents/minishell42tester/a/b☃
+
+mkdir a☃cd a☃rm -r ../a☃echo $PWD☃echo $OLDPWD
+0
+../../../mnt/nfs/homes/emis/Documents/minishell42tester/a☃☃../../../mnt/nfs/homes/emis/Documents/minishell42tester☃
+
+export CDPATH=/☃cd $HOME/..
+0
+
+
+export CDPATH=/☃cd mnt/nfs/homes/emis
+0
+/mnt/nfs/homes/emis☃
+
+export CDPATH=./☃cd .
+0
+
+
+export CDPATH=./☃cd ..
+0
+
+
