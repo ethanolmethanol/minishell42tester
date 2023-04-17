@@ -10,6 +10,8 @@ Therefore I made `minitester.sh`, my little monstrosity of a tester. **Over 700 
 
 ### How ?
 
+Clone this repo in your minishell directory. Then use `set`.
+
 I would explain the usage a little, but since I made a whole [man](https://github.com/ethanolmethanol/minishell42tester#usage-aka-man), I assume you know what to do. RTFM. Looks even nicer in the terminal. `./minitester.sh man` :D
 
 Although if you're *lazy* like me, let me tell you I made a cute ***interface*** just for you, dear potential user. `./minitester.sh user`
