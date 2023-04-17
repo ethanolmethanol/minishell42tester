@@ -136,7 +136,7 @@ minishell: unset: -H: invalid option
 minishell: unset: `HOL*A': not a valid identifier
 minishell: unset: `HOL#A': not a valid identifier
 
-minishell: unset: `/home/vietdu91/42_works/minishell': not a valid identifier
+minishell: unset: `/mnt/nfs/homes/emis/Documents/minishell42tester': not a valid identifier
 minishell: unset: `HOL@': not a valid identifier
 minishell: !A: event not found
 minishell: unset: `HOL^A': not a valid identifier

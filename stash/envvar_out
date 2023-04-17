@@ -3,15 +3,15 @@ PATH=
 
 PATH=
 PATH=
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c
+minitester.sh
 
 HOLA=bonjour
 HOLA=bonjour
 export PATH="..."☃
-export HOME="/home/vietdu91"☃export Hola☃export PATH="..."☃
-HOME="/home/vietdu91"☃Hola9hey☃PATH="..."☃
-export HOME="/home/vietdu91"☃export PATH="..."☃
-export HOME="/home/vietdu91"☃
+export HOME="/mnt/nfs/homes/emis"☃export Hola☃export PATH="..."☃
+HOME="/mnt/nfs/homes/emis"☃Hola9hey☃PATH="..."☃
+export HOME="/mnt/nfs/homes/emis"☃export PATH="..."☃
+export HOME="/mnt/nfs/homes/emis"☃
 
 
 
@@ -48,8 +48,8 @@ PATH=☃
 HOLA=bon☃
 HOLA=☃
 HOLA=bonjour☃
-HOLA=/home/vietdu91☃
-HOLA=bonjour/home/vietdu91☃
+HOLA=/mnt/nfs/homes/emis☃
+HOLA=bonjour/mnt/nfs/homes/emis☃
 HOLA=☃
 HOLA=bon☃
 HOLA=bonjour☃
@@ -61,7 +61,7 @@ HOLA=bon@jour☃
 
 
 HOLA=bonjour☃PATH=☃
-HOLAvietdu91=bonjour☃PATH=☃
+HOLAemis=bonjour☃PATH=☃
 HOLA=bonjour=casse-toi☃
 HOLA=bonjour=casse-toi☃
 bonjour et casse-toi☃
@@ -89,7 +89,7 @@ total
 
 
 
-crashtest.c  Docs  Dockers  Drawings  Makefile  minishell  philosophers  srcs  test.c☃
+minitester.sh☃
 HOL=A=bonjour
 
 HOL=A=
@@ -100,7 +100,7 @@ HOL=A=
 
 
 
-/home/vietdu91/42_works/minishell
+/mnt/nfs/homes/emis/Documents/minishell42tester
 
 
 
@@ -111,8 +111,8 @@ PATH=☃
 
 
 ☃
-☃☃/home/vietdu91/42_works/minishell☃
-/home/vietdu91/42_works/minishell☃☃☃☃/home/vietdu91
+☃☃/mnt/nfs/homes/emis/Documents/minishell42tester☃
+/mnt/nfs/homes/emis/Documents/minishell42tester☃☃☃☃/mnt/nfs/homes/emis
 ☃
 
 ☃

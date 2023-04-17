@@ -28,7 +28,7 @@ ls: /usr/bin/ls /usr/share/man/man1/ls.1posix.gz /usr/share/man/man1/ls.1.gz$$�
 minitester.sh
 
 aloh☃
-total 16☃drwx------  2 vietdu91 [...] .☃drwxrwxewt 51 root     [...] ..☃-rwxr-xr-x  8 vietdu91 [...] crashtest.c☃[...]☃
+total 16☃drwx------  2 emis [...] .☃drwxrwxewt 51 root     [...] ..☃-rwxr-xr-x  8 emis [...] crashtest.c☃[...]☃
 
 test.c$$$$$$$$$$$☃
 minitester.sh☃
