@@ -20,7 +20,7 @@ hardarray=("tricky" "hardcore")
 # the path to your minishell executable.
 minishell="./minishell"
 # the path to your minishell directory, where the executable can be copied from.
-fetchpath="../minishell42"
+fetchpath=".."
 # array for modifiers
 mod=()
 # var used for env -i shenanigans
